@@ -39,5 +39,14 @@ Web application for the bachelor thesis: employees can request leave and report 
 | GET | `/api/manager/leave-requests` | JWT + `MANAGER`. Department queue. |
 | PATCH | `/api/manager/leave-requests/:id/approve` | JWT + `MANAGER`. |
 | PATCH | `/api/manager/leave-requests/:id/reject` | JWT + `MANAGER`. |
+| GET | `/api/sickness-absences/me` | JWT. Own sickness absences. |
+| POST | `/api/sickness-absences` | JWT. Report own sickness. |
+| PATCH | `/api/sickness-absences/:id` | JWT. Edit own open sickness. |
+| GET | `/api/manager/sickness-absences` | JWT + `MANAGER`. Read-only. |
+| GET | `/api/admin/sickness-absences` | JWT + `ADMINISTRATOR`. |
+| PATCH | `/api/admin/sickness-absences/:id/document-pending` | JWT + `ADMINISTRATOR`. |
+| PATCH | `/api/admin/sickness-absences/:id/validate` | JWT + `ADMINISTRATOR`. |
+| PATCH | `/api/admin/sickness-absences/:id/reject` | JWT + `ADMINISTRATOR`. |
+| PATCH | `/api/admin/sickness-absences/:id/close` | JWT + `ADMINISTRATOR`. |
 
 Setup, environment variables, and test commands are documented in `/server/README.md`. Authentication details are in `/docs/authentication-and-roles.md`.

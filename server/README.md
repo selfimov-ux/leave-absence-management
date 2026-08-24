@@ -200,6 +200,49 @@ curl -X PATCH http://localhost:5000/api/manager/leave-requests/1/approve -H "Aut
 curl -X PATCH http://localhost:5000/api/manager/leave-requests/1/reject -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" -d "{\"rejectionReason\":\"Personaldeckung nicht ausreichend\"}"
 ```
 
+## Sickness absences
+
+Own list:
+
+```bash
+curl http://localhost:5000/api/sickness-absences/me -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+Report (optional certificate file as `certificate`):
+
+```bash
+curl -X POST http://localhost:5000/api/sickness-absences -H "Authorization: Bearer YOUR_TOKEN" -F "absenceType=SICK_LEAVE" -F "startDate=2026-08-24" -F "endDate=" -F "employeeNote=Fieber" -F "certificate=@attest.pdf;type=application/pdf"
+```
+
+Employee edit (keep existing file unless a new `certificate` is sent):
+
+```bash
+curl -X PATCH http://localhost:5000/api/sickness-absences/1 -H "Authorization: Bearer YOUR_TOKEN" -F "endDate=2026-08-26" -F "employeeNote=Attest nachgereicht" -F "certificate=@attest.jpg;type=image/jpeg"
+```
+
+View certificate (employee, department manager, or administrator):
+
+```bash
+curl -O -J http://localhost:5000/api/sickness-absences/1/certificate -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+Manager department list:
+
+```bash
+curl http://localhost:5000/api/manager/sickness-absences -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+Administrator actions:
+
+```bash
+curl http://localhost:5000/api/admin/sickness-absences -H "Authorization: Bearer YOUR_TOKEN"
+curl -X PATCH http://localhost:5000/api/admin/sickness-absences/1/document-pending -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" -d "{\"administratorNote\":\"Bitte Attestreferenz nachreichen\"}"
+curl -X PATCH http://localhost:5000/api/admin/sickness-absences/1/validate -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" -d "{\"administratorNote\":\"Geprüft\"}"
+curl -X PATCH http://localhost:5000/api/admin/sickness-absences/1/reject -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" -d "{\"administratorNote\":\"Nachweis unvollständig\"}"
+curl -X PATCH http://localhost:5000/api/admin/sickness-absences/1/close -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+
 
 Authorization header format:
 

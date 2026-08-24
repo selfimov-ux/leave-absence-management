@@ -57,3 +57,32 @@ export function getLeaveTypeLabel(name) {
   }
   return name
 }
+
+export function getSicknessStatusLabel(status) {
+  if (status === 'REPORTED') {
+    return 'Gemeldet'
+  }
+  if (status === 'DOCUMENT_PENDING') {
+    return 'Dokument ausstehend'
+  }
+  if (status === 'VALIDATED') {
+    return 'Validiert'
+  }
+  if (status === 'REJECTED') {
+    return 'Abgelehnt'
+  }
+  if (status === 'CLOSED') {
+    return 'Abgeschlossen'
+  }
+  return status
+}
+
+export function getAbsenceTypeLabel(type) {
+  if (type === 'SICK_LEAVE') {
+    return 'Krankmeldung'
+  }
+  if (type === 'CARE_LEAVE') {
+    return 'Pflegefreistellung'
+  }
+  return type
+}

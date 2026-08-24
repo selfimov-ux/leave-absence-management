@@ -12,8 +12,13 @@ import LeaveRequestNewPage from './pages/LeaveRequestNewPage'
 import LeaveTypePage from './pages/LeaveTypePage'
 import LoginPage from './pages/LoginPage'
 import ManagerLeaveRequestPage from './pages/ManagerLeaveRequestPage'
+import ManagerSicknessPage from './pages/ManagerSicknessPage'
 import ManagerRoute from './components/ManagerRoute'
 import ReportsPage from './pages/ReportsPage'
+import SicknessEditPage from './pages/SicknessEditPage'
+import SicknessListPage from './pages/SicknessListPage'
+import SicknessNewPage from './pages/SicknessNewPage'
+import AdminSicknessPage from './pages/AdminSicknessPage'
 import './App.css'
 
 function App() {
@@ -60,6 +65,46 @@ function App() {
             <ManagerRoute>
               <ManagerLeaveRequestPage />
             </ManagerRoute>
+          }
+        />
+        <Route
+          path="/sickness-absences"
+          element={
+            <ProtectedRoute>
+              <SicknessListPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/sickness-absences/new"
+          element={
+            <ProtectedRoute>
+              <SicknessNewPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/sickness-absences/:id/edit"
+          element={
+            <ProtectedRoute>
+              <SicknessEditPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/manager/sickness-absences"
+          element={
+            <ManagerRoute>
+              <ManagerSicknessPage />
+            </ManagerRoute>
+          }
+        />
+        <Route
+          path="/admin/sickness-absences"
+          element={
+            <AdminRoute>
+              <AdminSicknessPage />
+            </AdminRoute>
           }
         />
         <Route

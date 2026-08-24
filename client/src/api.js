@@ -33,3 +33,55 @@ export async function apiRequest(path, { method = 'GET', body } = {}) {
 
   return data
 }
+
+export async function apiFormRequest(path, { method = 'POST', formData }) {
+  const token = getToken()
+  const response = await fetch(path, {
+    method,
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: formData,
+  })
+
+  const data = await response.json().catch(() => null)
+
+  if (response.status === 401) {
+    clearSession()
+  }
+
+  if (!response.ok) {
+    throw new ApiError(
+      response.status,
+      data?.message || 'Die Anfrage ist fehlgeschlagen.'
+    )
+  }
+
+  return data
+}
+
+export async function fetchAuthorizedFile(path) {
+  const token = getToken()
+  const response = await fetch(path, {
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  })
+
+  if (response.status === 401) {
+    clearSession()
+  }
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => null)
+    throw new ApiError(
+      response.status,
+      data?.message || 'Die Datei konnte nicht geladen werden.'
+    )
+  }
+
+  return {
+    blob: await response.blob(),
+    contentType: response.headers.get('Content-Type') || '',
+  }
+}

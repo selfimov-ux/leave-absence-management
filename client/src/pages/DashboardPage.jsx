@@ -24,7 +24,13 @@ function getDashboardCards(role) {
       },
       {
         title: 'Abwesenheiten der Abteilung',
-        text: 'Krankmeldungen und Pflegezeiten der Abteilung einsehen. Die Bearbeitung folgt in einer späteren Phase.',
+        text: 'Krankmeldungen der eigenen Abteilung einsehen. Die Prüfung erfolgt durch die Administration.',
+        to: '/manager/sickness-absences',
+      },
+      {
+        title: 'Meine Krankmeldungen',
+        text: 'Eigene Krankmeldungen erfassen. Sie verringern den Jahresurlaub nicht.',
+        to: '/sickness-absences',
       },
     ]
   }
@@ -47,6 +53,11 @@ function getDashboardCards(role) {
         to: '/admin/leave-types',
       },
       {
+        title: 'Verwaltung von Krankmeldungen',
+        text: 'Krankmeldungen prüfen, validieren, ablehnen oder abschließen.',
+        to: '/admin/sickness-absences',
+      },
+      {
         title: 'Berichte',
         text: 'Übersichten zu Urlaub und Abwesenheiten. Die Auswertung folgt in einer späteren Phase.',
         to: '/admin/reports',
@@ -62,7 +73,8 @@ function getDashboardCards(role) {
     },
     {
       title: 'Meine Krankmeldungen',
-      text: 'Krankmeldungen erfassen und nachverfolgen. Die Bearbeitung folgt in einer späteren Phase.',
+      text: 'Krankmeldungen erfassen und nachverfolgen. Sie verringern den Jahresurlaub nicht.',
+      to: '/sickness-absences',
     },
     {
       title: 'Verbleibender Urlaub',
