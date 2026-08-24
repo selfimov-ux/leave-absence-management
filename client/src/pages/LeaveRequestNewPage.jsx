@@ -2,10 +2,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { apiRequest } from '../api'
 import AdminPage from '../components/AdminPage'
+import { useLanguage } from '../i18n/LanguageContext'
 import { countWorkingDays, getLeaveTypeLabel } from '../leaveLabels'
 
 function LeaveRequestNewPage() {
   const navigate = useNavigate()
+  const { t } = useLanguage()
   const [leaveTypes, setLeaveTypes] = useState([])
   const [leaveTypeId, setLeaveTypeId] = useState('')
   const [startDate, setStartDate] = useState('')
@@ -42,19 +44,19 @@ function LeaveRequestNewPage() {
   async function handleSubmit(event) {
     event.preventDefault()
     if (!leaveTypeId) {
-      setError('Bitte eine Urlaubsart auswählen.')
+      setError(t('leaveNew.needType'))
       return
     }
     if (!startDate || !endDate) {
-      setError('Bitte Beginn und Ende angeben.')
+      setError(t('leaveNew.needDates'))
       return
     }
     if (startDate > endDate) {
-      setError('Das Beginndatum darf nicht nach dem Endedatum liegen.')
+      setError(t('leaveNew.endBeforeStart'))
       return
     }
     if (workingDays <= 0) {
-      setError('Der Zeitraum enthält keine Arbeitstage (Montag bis Freitag).')
+      setError(t('leaveNew.noWorkingDays'))
       return
     }
 
@@ -80,30 +82,30 @@ function LeaveRequestNewPage() {
 
   return (
     <AdminPage
-      eyebrow="Urlaub"
-      title="Neuen Urlaubsantrag stellen"
-      lead="Der Antrag gilt nur für Sie selbst und bleibt zunächst ausstehend."
+      eyebrow={t('leaveNew.eyebrow')}
+      title={t('leaveNew.title')}
+      lead={t('leaveNew.lead')}
     >
-      {isLoading ? <p>Daten werden geladen…</p> : null}
+      {isLoading ? <p>{t('common.loading')}</p> : null}
       {error ? <p className="form-error">{error}</p> : null}
 
       {!isLoading ? (
         <form className="admin-form" onSubmit={handleSubmit} noValidate>
-          <label htmlFor="leaveTypeId">Urlaubsart</label>
+          <label htmlFor="leaveTypeId">{t('leaveList.leaveType')}</label>
           <select
             id="leaveTypeId"
             value={leaveTypeId}
             onChange={(event) => setLeaveTypeId(event.target.value)}
           >
-            <option value="">Bitte auswählen</option>
+            <option value="">{t('leaveNew.choose')}</option>
             {leaveTypes.map((type) => (
               <option key={type.id} value={type.id}>
-                {getLeaveTypeLabel(type.name)}
+                {getLeaveTypeLabel(type.name, t)}
               </option>
             ))}
           </select>
 
-          <label htmlFor="startDate">Beginn</label>
+          <label htmlFor="startDate">{t('leaveNew.start')}</label>
           <input
             id="startDate"
             type="date"
@@ -111,7 +113,7 @@ function LeaveRequestNewPage() {
             onChange={(event) => setStartDate(event.target.value)}
           />
 
-          <label htmlFor="endDate">Ende</label>
+          <label htmlFor="endDate">{t('leaveNew.end')}</label>
           <input
             id="endDate"
             type="date"
@@ -119,12 +121,9 @@ function LeaveRequestNewPage() {
             onChange={(event) => setEndDate(event.target.value)}
           />
 
-          <p className="field-hint">
-            Berechnete Arbeitstage: <strong>{workingDays}</strong>. Gesetzliche
-            Feiertage werden in dieser Phase nicht berücksichtigt.
-          </p>
+          <p className="field-hint">{t('leaveNew.daysHint', { count: workingDays })}</p>
 
-          <label htmlFor="reason">Bemerkung</label>
+          <label htmlFor="reason">{t('leaveNew.reason')}</label>
           <textarea
             id="reason"
             rows="3"
@@ -134,10 +133,10 @@ function LeaveRequestNewPage() {
 
           <div className="form-actions">
             <button type="submit" className="btn-primary" disabled={isSaving}>
-              {isSaving ? 'Wird gesendet…' : 'Antrag senden'}
+              {isSaving ? t('leaveNew.sending') : t('leaveNew.submit')}
             </button>
             <Link to="/leave-requests" className="btn-secondary">
-              Abbrechen
+              {t('common.cancel')}
             </Link>
           </div>
         </form>

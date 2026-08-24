@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiRequest } from '../api'
 import AdminPage from '../components/AdminPage'
+import { useLanguage } from '../i18n/LanguageContext'
 
 const EMPTY_FORM = {
   name: '',
@@ -11,6 +12,7 @@ const EMPTY_FORM = {
 
 function DepartmentPage() {
   const navigate = useNavigate()
+  const { t } = useLanguage()
   const [departments, setDepartments] = useState([])
   const [employees, setEmployees] = useState([])
   const [form, setForm] = useState(EMPTY_FORM)
@@ -66,7 +68,7 @@ function DepartmentPage() {
   async function handleSubmit(event) {
     event.preventDefault()
     if (!form.name.trim()) {
-      setError('Der Abteilungsname ist erforderlich.')
+      setError(t('departments.needName'))
       return
     }
 
@@ -101,7 +103,7 @@ function DepartmentPage() {
 
   async function handleDelete(department) {
     const confirmed = window.confirm(
-      `Möchten Sie die Abteilung „${department.name}“ wirklich löschen?`
+      t('departments.deleteConfirm', { name: department.name })
     )
     if (!confirmed) {
       return
@@ -119,22 +121,24 @@ function DepartmentPage() {
 
   return (
     <AdminPage
-      eyebrow="Administration"
-      title="Abteilungsverwaltung"
-      lead="Abteilungen anlegen, Vorgesetzte zuordnen und Abteilungen ohne zugeordnete Mitarbeiter löschen."
+      eyebrow={t('departments.eyebrow')}
+      title={t('departments.title')}
+      lead={t('departments.lead')}
       actions={
         <button type="button" className="btn-primary" onClick={openCreate}>
-          Neue Abteilung anlegen
+          {t('departments.create')}
         </button>
       }
     >
       {error ? <p className="form-error">{error}</p> : null}
-      {isLoading ? <p>Daten werden geladen…</p> : null}
+      {isLoading ? <p>{t('common.loading')}</p> : null}
 
       {showForm ? (
         <form className="admin-form" onSubmit={handleSubmit} noValidate>
-          <h2>{editingId ? 'Abteilung bearbeiten' : 'Neue Abteilung'}</h2>
-          <label htmlFor="departmentName">Abteilung</label>
+          <h2>
+            {editingId ? t('departments.editTitle') : t('departments.newTitle')}
+          </h2>
+          <label htmlFor="departmentName">{t('common.department')}</label>
           <input
             id="departmentName"
             value={form.name}
@@ -142,7 +146,7 @@ function DepartmentPage() {
               setForm((current) => ({ ...current, name: event.target.value }))
             }
           />
-          <label htmlFor="departmentDescription">Beschreibung</label>
+          <label htmlFor="departmentDescription">{t('departments.description')}</label>
           <textarea
             id="departmentDescription"
             rows="3"
@@ -154,7 +158,7 @@ function DepartmentPage() {
               }))
             }
           />
-          <label htmlFor="departmentManager">Vorgesetzter</label>
+          <label htmlFor="departmentManager">{t('departments.manager')}</label>
           <select
             id="departmentManager"
             value={form.managerId}
@@ -165,7 +169,7 @@ function DepartmentPage() {
               }))
             }
           >
-            <option value="">Kein Vorgesetzter</option>
+            <option value="">{t('common.noManager')}</option>
             {employees.map((employee) => (
               <option key={employee.id} value={employee.id}>
                 {employee.firstName} {employee.lastName}
@@ -174,21 +178,21 @@ function DepartmentPage() {
           </select>
           <div className="form-actions">
             <button type="submit" className="btn-primary" disabled={isSaving}>
-              {isSaving ? 'Wird gespeichert…' : 'Speichern'}
+              {isSaving ? t('common.saving') : t('common.save')}
             </button>
             <button
               type="button"
               className="btn-secondary"
               onClick={() => setShowForm(false)}
             >
-              Abbrechen
+              {t('common.cancel')}
             </button>
           </div>
         </form>
       ) : null}
 
       {!isLoading && departments.length === 0 ? (
-        <p>Keine Abteilungen vorhanden.</p>
+        <p>{t('departments.empty')}</p>
       ) : null}
 
       {!isLoading && departments.length > 0 ? (
@@ -196,32 +200,32 @@ function DepartmentPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Abteilung</th>
-                <th>Beschreibung</th>
-                <th>Vorgesetzter</th>
-                <th>Aktionen</th>
+                <th>{t('common.department')}</th>
+                <th>{t('departments.description')}</th>
+                <th>{t('departments.manager')}</th>
+                <th>{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody>
               {departments.map((department) => (
                 <tr key={department.id}>
                   <td>{department.name}</td>
-                  <td>{department.description || '—'}</td>
-                  <td>{department.managerName || '—'}</td>
+                  <td>{department.description || t('common.dash')}</td>
+                  <td>{department.managerName || t('common.dash')}</td>
                   <td className="actions">
                     <button
                       type="button"
                       className="link-button"
                       onClick={() => openEdit(department)}
                     >
-                      Bearbeiten
+                      {t('common.edit')}
                     </button>
                     <button
                       type="button"
                       className="link-button"
                       onClick={() => handleDelete(department)}
                     >
-                      Löschen
+                      {t('common.delete')}
                     </button>
                   </td>
                 </tr>

@@ -31,13 +31,3 @@ export function clearSession() {
 export function isAuthenticated() {
   return Boolean(getToken())
 }
-
-export function getRoleLabel(role) {
-  if (role === 'MANAGER') {
-    return 'Vorgesetzter'
-  }
-  if (role === 'ADMINISTRATOR') {
-    return 'Administrator'
-  }
-  return 'Mitarbeiter'
-}

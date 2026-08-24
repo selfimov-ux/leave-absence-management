@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiRequest } from '../api'
 import AdminPage from '../components/AdminPage'
+import { useLanguage } from '../i18n/LanguageContext'
 import { formatDate, getLeaveTypeLabel, getStatusLabel } from '../leaveLabels'
 
 function ManagerLeaveRequestPage() {
   const navigate = useNavigate()
+  const { t, language } = useLanguage()
   const [requests, setRequests] = useState([])
   const [leaveTypes, setLeaveTypes] = useState([])
   const [status, setStatus] = useState('')
@@ -63,7 +65,7 @@ function ManagerLeaveRequestPage() {
 
   async function handleApprove(request) {
     const confirmed = window.confirm(
-      `Möchten Sie den Antrag von ${request.employeeName} wirklich genehmigen?`
+      t('managerLeave.approveConfirm', { name: request.employeeName })
     )
     if (!confirmed) {
       return
@@ -73,7 +75,7 @@ function ManagerLeaveRequestPage() {
       await apiRequest(`/api/manager/leave-requests/${request.id}/approve`, {
         method: 'PATCH',
       })
-      setSuccess('Der Antrag wurde genehmigt.')
+      setSuccess(t('managerLeave.approved'))
       await load()
     } catch (err) {
       setSuccess('')
@@ -84,7 +86,7 @@ function ManagerLeaveRequestPage() {
   async function handleReject(event) {
     event.preventDefault()
     if (!rejectionReason.trim()) {
-      setError('Bitte einen Ablehnungsgrund angeben.')
+      setError(t('managerLeave.needReason'))
       return
     }
 
@@ -95,7 +97,7 @@ function ManagerLeaveRequestPage() {
       })
       setRejecting(null)
       setRejectionReason('')
-      setSuccess('Der Antrag wurde abgelehnt.')
+      setSuccess(t('managerLeave.rejected'))
       await load()
     } catch (err) {
       setError(err.message)
@@ -104,26 +106,26 @@ function ManagerLeaveRequestPage() {
 
   return (
     <AdminPage
-      eyebrow="Abteilung"
-      title="Urlaubsanträge meiner Abteilung"
-      lead="Nur Anträge von Mitarbeitenden der eigenen Abteilung. Eigene Anträge erscheinen hier nicht."
+      eyebrow={t('managerLeave.eyebrow')}
+      title={t('managerLeave.title')}
+      lead={t('managerLeave.lead')}
     >
       <div className="toolbar toolbar-4">
         <select value={status} onChange={(event) => setStatus(event.target.value)}>
-          <option value="">Alle Status</option>
-          <option value="PENDING">Ausstehend</option>
-          <option value="APPROVED">Genehmigt</option>
-          <option value="REJECTED">Abgelehnt</option>
-          <option value="CANCELLED">Storniert</option>
+          <option value="">{t('common.allStatuses')}</option>
+          <option value="PENDING">{t('status.PENDING')}</option>
+          <option value="APPROVED">{t('status.APPROVED')}</option>
+          <option value="REJECTED">{t('status.REJECTED')}</option>
+          <option value="CANCELLED">{t('status.CANCELLED')}</option>
         </select>
         <select
           value={leaveTypeId}
           onChange={(event) => setLeaveTypeId(event.target.value)}
         >
-          <option value="">Alle Urlaubsarten</option>
+          <option value="">{t('common.allLeaveTypes')}</option>
           {leaveTypes.map((type) => (
             <option key={type.id} value={type.id}>
-              {getLeaveTypeLabel(type.name)}
+              {getLeaveTypeLabel(type.name, t)}
             </option>
           ))}
         </select>
@@ -131,31 +133,34 @@ function ManagerLeaveRequestPage() {
           type="date"
           value={fromDate}
           onChange={(event) => setFromDate(event.target.value)}
-          aria-label="Von"
+          aria-label={t('common.from')}
         />
         <input
           type="date"
           value={toDate}
           onChange={(event) => setToDate(event.target.value)}
-          aria-label="Bis"
+          aria-label={t('common.to')}
         />
       </div>
 
       {success ? <p className="form-success">{success}</p> : null}
       {error ? <p className="form-error">{error}</p> : null}
-      {isLoading ? <p>Daten werden geladen…</p> : null}
+      {isLoading ? <p>{t('common.loading')}</p> : null}
       {!isLoading && requests.length === 0 ? (
-        <p>Keine Anträge für die gewählten Filter.</p>
+        <p>{t('managerLeave.empty')}</p>
       ) : null}
 
       {rejecting ? (
         <form className="admin-form" onSubmit={handleReject}>
-          <h2>Antrag ablehnen</h2>
+          <h2>{t('managerLeave.rejectTitle')}</h2>
           <p>
-            {rejecting.employeeName}: {formatDate(rejecting.startDate)} bis{' '}
-            {formatDate(rejecting.endDate)}
+            {t('managerLeave.period', {
+              name: rejecting.employeeName,
+              from: formatDate(rejecting.startDate, language),
+              to: formatDate(rejecting.endDate, language),
+            })}
           </p>
-          <label htmlFor="rejectionReason">Ablehnungsgrund</label>
+          <label htmlFor="rejectionReason">{t('managerLeave.rejectReason')}</label>
           <textarea
             id="rejectionReason"
             rows="3"
@@ -164,7 +169,7 @@ function ManagerLeaveRequestPage() {
           />
           <div className="form-actions">
             <button type="submit" className="btn-primary">
-              Ablehnung speichern
+              {t('managerLeave.saveReject')}
             </button>
             <button
               type="button"
@@ -174,7 +179,7 @@ function ManagerLeaveRequestPage() {
                 setRejectionReason('')
               }}
             >
-              Abbrechen
+              {t('common.cancel')}
             </button>
           </div>
         </form>
@@ -185,15 +190,15 @@ function ManagerLeaveRequestPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Mitarbeiter</th>
-                <th>Personalnummer</th>
-                <th>Urlaubsart</th>
-                <th>Beginn</th>
-                <th>Ende</th>
-                <th>Arbeitstage</th>
-                <th>Bemerkung</th>
-                <th>Status</th>
-                <th>Aktionen</th>
+                <th>{t('managerLeave.name')}</th>
+                <th>{t('managerLeave.employeeNumber')}</th>
+                <th>{t('leaveList.leaveType')}</th>
+                <th>{t('leaveList.start')}</th>
+                <th>{t('leaveList.end')}</th>
+                <th>{t('common.workingDays')}</th>
+                <th>{t('common.note')}</th>
+                <th>{t('common.status')}</th>
+                <th>{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -201,12 +206,12 @@ function ManagerLeaveRequestPage() {
                 <tr key={request.id}>
                   <td>{request.employeeName}</td>
                   <td>{request.employeeNumber}</td>
-                  <td>{getLeaveTypeLabel(request.leaveTypeName)}</td>
-                  <td>{formatDate(request.startDate)}</td>
-                  <td>{formatDate(request.endDate)}</td>
+                  <td>{getLeaveTypeLabel(request.leaveTypeName, t)}</td>
+                  <td>{formatDate(request.startDate, language)}</td>
+                  <td>{formatDate(request.endDate, language)}</td>
                   <td>{request.requestedDays}</td>
-                  <td>{request.reason || '—'}</td>
-                  <td>{getStatusLabel(request.status)}</td>
+                  <td>{request.reason || t('common.dash')}</td>
+                  <td>{getStatusLabel(request.status, t)}</td>
                   <td className="actions">
                     {request.status === 'PENDING' ? (
                       <>
@@ -215,7 +220,7 @@ function ManagerLeaveRequestPage() {
                           className="link-button"
                           onClick={() => handleApprove(request)}
                         >
-                          Genehmigen
+                          {t('managerLeave.approve')}
                         </button>
                         <button
                           type="button"
@@ -227,11 +232,11 @@ function ManagerLeaveRequestPage() {
                             setError('')
                           }}
                         >
-                          Ablehnen
+                          {t('managerLeave.reject')}
                         </button>
                       </>
                     ) : (
-                      '—'
+                      t('common.dash')
                     )}
                   </td>
                 </tr>

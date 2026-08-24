@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiRequest } from '../api'
 import AdminPage from '../components/AdminPage'
+import { useLanguage } from '../i18n/LanguageContext'
 import {
   formatDate,
   getAbsenceTypeLabel,
@@ -10,6 +11,7 @@ import {
 
 function ManagerSicknessPage() {
   const navigate = useNavigate()
+  const { t, language } = useLanguage()
   const [records, setRecords] = useState([])
   const [status, setStatus] = useState('')
   const [absenceType, setAbsenceType] = useState('')
@@ -51,50 +53,46 @@ function ManagerSicknessPage() {
 
   return (
     <AdminPage
-      eyebrow="Abteilung"
-      title="Abwesenheiten meiner Abteilung"
-      lead="Krankmeldungen werden durch die Administration geprüft und validiert."
+      eyebrow={t('managerSickness.eyebrow')}
+      title={t('managerSickness.title')}
+      lead={t('managerSickness.lead')}
     >
-      <p className="field-hint">
-        Diese Übersicht ist nur lesend. Es gibt keine Aktionen zum Validieren,
-        Ablehnen oder Abschließen. Bescheinigungsdateien sind für
-        Führungskräfte nicht einsehbar.
-      </p>
+      <p className="field-hint">{t('managerSickness.hint')}</p>
       <div className="toolbar toolbar-4">
         <select value={status} onChange={(event) => setStatus(event.target.value)}>
-          <option value="">Alle Status</option>
-          <option value="REPORTED">Gemeldet</option>
-          <option value="DOCUMENT_PENDING">Dokument ausstehend</option>
-          <option value="VALIDATED">Validiert</option>
-          <option value="REJECTED">Abgelehnt</option>
-          <option value="CLOSED">Abgeschlossen</option>
+          <option value="">{t('common.allStatuses')}</option>
+          <option value="REPORTED">{t('status.REPORTED')}</option>
+          <option value="DOCUMENT_PENDING">{t('status.DOCUMENT_PENDING')}</option>
+          <option value="VALIDATED">{t('status.VALIDATED')}</option>
+          <option value="REJECTED">{t('status.REJECTED')}</option>
+          <option value="CLOSED">{t('status.CLOSED')}</option>
         </select>
         <select
           value={absenceType}
           onChange={(event) => setAbsenceType(event.target.value)}
         >
-          <option value="">Alle Arten</option>
-          <option value="SICK_LEAVE">Krankmeldung</option>
-          <option value="CARE_LEAVE">Pflegefreistellung</option>
+          <option value="">{t('common.allTypes')}</option>
+          <option value="SICK_LEAVE">{t('absenceType.SICK_LEAVE')}</option>
+          <option value="CARE_LEAVE">{t('absenceType.CARE_LEAVE')}</option>
         </select>
         <input
           type="date"
           value={fromDate}
           onChange={(event) => setFromDate(event.target.value)}
-          aria-label="Von"
+          aria-label={t('common.from')}
         />
         <input
           type="date"
           value={toDate}
           onChange={(event) => setToDate(event.target.value)}
-          aria-label="Bis"
+          aria-label={t('common.to')}
         />
       </div>
 
       {error ? <p className="form-error">{error}</p> : null}
-      {isLoading ? <p>Daten werden geladen…</p> : null}
+      {isLoading ? <p>{t('common.loading')}</p> : null}
       {!isLoading && records.length === 0 ? (
-        <p>Keine Abwesenheiten für die gewählten Filter.</p>
+        <p>{t('managerSickness.empty')}</p>
       ) : null}
 
       {!isLoading && records.length > 0 ? (
@@ -102,14 +100,14 @@ function ManagerSicknessPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Mitarbeiter</th>
-                <th>Personalnummer</th>
-                <th>Abteilung</th>
-                <th>Abwesenheitsart</th>
-                <th>Beginn</th>
-                <th>Ende</th>
-                <th>Status</th>
-                <th>Bescheinigungsreferenz</th>
+                <th>{t('common.employee')}</th>
+                <th>{t('managerLeave.employeeNumber')}</th>
+                <th>{t('common.department')}</th>
+                <th>{t('sicknessList.type')}</th>
+                <th>{t('leaveList.start')}</th>
+                <th>{t('leaveList.end')}</th>
+                <th>{t('common.status')}</th>
+                <th>{t('sicknessList.certificate')}</th>
               </tr>
             </thead>
             <tbody>
@@ -118,11 +116,11 @@ function ManagerSicknessPage() {
                   <td>{record.employeeName}</td>
                   <td>{record.employeeNumber}</td>
                   <td>{record.departmentName}</td>
-                  <td>{getAbsenceTypeLabel(record.absenceType)}</td>
-                  <td>{formatDate(record.startDate)}</td>
-                  <td>{formatDate(record.endDate)}</td>
-                  <td>{getSicknessStatusLabel(record.status)}</td>
-                  <td>—</td>
+                  <td>{getAbsenceTypeLabel(record.absenceType, t)}</td>
+                  <td>{formatDate(record.startDate, language)}</td>
+                  <td>{formatDate(record.endDate, language)}</td>
+                  <td>{getSicknessStatusLabel(record.status, t)}</td>
+                  <td>{t('common.dash')}</td>
                 </tr>
               ))}
             </tbody>

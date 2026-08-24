@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { apiRequest } from '../api'
 import AdminPage from '../components/AdminPage'
 import CertificateCell from '../components/CertificateCell'
+import { useLanguage } from '../i18n/LanguageContext'
 import {
   formatDate,
   getAbsenceTypeLabel,
@@ -11,6 +12,7 @@ import {
 
 function SicknessListPage() {
   const navigate = useNavigate()
+  const { t, language } = useLanguage()
   const [records, setRecords] = useState([])
   const [status, setStatus] = useState('')
   const [error, setError] = useState('')
@@ -40,30 +42,30 @@ function SicknessListPage() {
 
   return (
     <AdminPage
-      eyebrow="Abwesenheit"
-      title="Meine Krankmeldungen"
-      lead="Krankmeldungen und Pflegezeiten erfassen. Diese Einträge verringern den Jahresurlaub nicht."
+      eyebrow={t('sicknessList.eyebrow')}
+      title={t('sicknessList.title')}
+      lead={t('sicknessList.lead')}
       actions={
         <Link to="/sickness-absences/new" className="btn-primary">
-          Krankmeldung erfassen
+          {t('sicknessList.newReport')}
         </Link>
       }
     >
       <div className="toolbar">
         <select value={status} onChange={(event) => setStatus(event.target.value)}>
-          <option value="">Alle Status</option>
-          <option value="REPORTED">Gemeldet</option>
-          <option value="DOCUMENT_PENDING">Dokument ausstehend</option>
-          <option value="VALIDATED">Validiert</option>
-          <option value="REJECTED">Abgelehnt</option>
-          <option value="CLOSED">Abgeschlossen</option>
+          <option value="">{t('common.allStatuses')}</option>
+          <option value="REPORTED">{t('status.REPORTED')}</option>
+          <option value="DOCUMENT_PENDING">{t('status.DOCUMENT_PENDING')}</option>
+          <option value="VALIDATED">{t('status.VALIDATED')}</option>
+          <option value="REJECTED">{t('status.REJECTED')}</option>
+          <option value="CLOSED">{t('status.CLOSED')}</option>
         </select>
       </div>
 
       {error ? <p className="form-error">{error}</p> : null}
-      {isLoading ? <p>Daten werden geladen…</p> : null}
+      {isLoading ? <p>{t('common.loading')}</p> : null}
       {!isLoading && records.length === 0 ? (
-        <p>Es sind keine Krankmeldungen vorhanden.</p>
+        <p>{t('sicknessList.empty')}</p>
       ) : null}
 
       {!isLoading && records.length > 0 ? (
@@ -71,12 +73,12 @@ function SicknessListPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Abwesenheitsart</th>
-                <th>Beginn</th>
-                <th>Ende</th>
-                <th>Status</th>
-                <th>Bescheinigungsreferenz</th>
-                <th>Aktionen</th>
+                <th>{t('sicknessList.type')}</th>
+                <th>{t('leaveList.start')}</th>
+                <th>{t('leaveList.end')}</th>
+                <th>{t('common.status')}</th>
+                <th>{t('sicknessList.certificate')}</th>
+                <th>{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -86,20 +88,20 @@ function SicknessListPage() {
                   record.status === 'DOCUMENT_PENDING'
                 return (
                   <tr key={record.id}>
-                    <td>{getAbsenceTypeLabel(record.absenceType)}</td>
-                    <td>{formatDate(record.startDate)}</td>
-                    <td>{formatDate(record.endDate)}</td>
-                    <td>{getSicknessStatusLabel(record.status)}</td>
+                    <td>{getAbsenceTypeLabel(record.absenceType, t)}</td>
+                    <td>{formatDate(record.startDate, language)}</td>
+                    <td>{formatDate(record.endDate, language)}</td>
+                    <td>{getSicknessStatusLabel(record.status, t)}</td>
                     <td>
                       <CertificateCell record={record} />
                     </td>
                     <td className="actions">
                       {canEdit ? (
                         <Link to={`/sickness-absences/${record.id}/edit`}>
-                          Bearbeiten
+                          {t('common.edit')}
                         </Link>
                       ) : (
-                        '—'
+                        t('common.dash')
                       )}
                     </td>
                   </tr>

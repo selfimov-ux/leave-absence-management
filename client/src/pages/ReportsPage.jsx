@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { apiRequest } from '../api'
 import AdminPage from '../components/AdminPage'
 import { downloadCsv } from '../csvExport'
+import { useLanguage } from '../i18n/LanguageContext'
 import {
   formatDate,
   getAbsenceTypeLabel,
@@ -12,14 +13,9 @@ import {
   getStatusLabel,
 } from '../leaveLabels'
 
-const TABS = [
-  { id: 'leave', label: 'Urlaubsbericht' },
-  { id: 'sickness', label: 'Krankmeldungsbericht' },
-  { id: 'overview', label: 'Abwesenheitsübersicht' },
-]
-
 function ReportsPage() {
   const navigate = useNavigate()
+  const { t, language } = useLanguage()
   const [tab, setTab] = useState('leave')
   const [employees, setEmployees] = useState([])
   const [departments, setDepartments] = useState([])
@@ -36,6 +32,12 @@ function ReportsPage() {
   const [records, setRecords] = useState([])
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(true)
+
+  const tabs = [
+    { id: 'leave', label: t('reports.leaveTab') },
+    { id: 'sickness', label: t('reports.sicknessTab') },
+    { id: 'overview', label: t('reports.overviewTab') },
+  ]
 
   useEffect(() => {
     async function loadLookups() {
@@ -124,22 +126,22 @@ function ReportsPage() {
   function exportCsv() {
     if (tab === 'leave') {
       downloadCsv(
-        'urlaubsbericht.csv',
+        t('reports.csvLeave'),
         [
-          'ID',
-          'Personalnummer',
-          'Vorname',
-          'Nachname',
-          'Abteilung',
-          'Urlaubsart',
-          'Beginn',
-          'Ende',
-          'Arbeitstage',
-          'Status',
-          'Begründung',
-          'Prüfer',
-          'Prüfdatum',
-          'Ablehnungsgrund',
+          t('audit.id'),
+          t('table.number'),
+          t('common.firstName'),
+          t('common.lastName'),
+          t('common.department'),
+          t('table.leaveType'),
+          t('table.start'),
+          t('table.end'),
+          t('common.workingDays'),
+          t('common.status'),
+          t('common.reason'),
+          t('table.reviewer'),
+          t('common.reviewDate'),
+          t('common.rejectionReason'),
         ],
         records.map((row) => [
           row.id,
@@ -147,11 +149,11 @@ function ReportsPage() {
           row.firstName,
           row.lastName,
           row.departmentName,
-          getLeaveTypeLabel(row.leaveTypeName),
+          getLeaveTypeLabel(row.leaveTypeName, t),
           row.startDate,
           row.endDate,
           row.requestedDays,
-          getStatusLabel(row.status),
+          getStatusLabel(row.status, t),
           row.reason,
           row.reviewerName,
           row.reviewedAt,
@@ -163,22 +165,22 @@ function ReportsPage() {
 
     if (tab === 'sickness') {
       downloadCsv(
-        'krankmeldungsbericht.csv',
+        t('reports.csvSickness'),
         [
-          'ID',
-          'Personalnummer',
-          'Vorname',
-          'Nachname',
-          'Abteilung',
-          'Abwesenheitsart',
-          'Beginn',
-          'Ende',
-          'Status',
-          'Bescheinigung vorhanden',
-          'Mitarbeiterbemerkung',
-          'Administratorvermerk',
-          'Validierungsdatum',
-          'Validiert von',
+          t('audit.id'),
+          t('table.number'),
+          t('common.firstName'),
+          t('common.lastName'),
+          t('common.department'),
+          t('sicknessList.type'),
+          t('table.start'),
+          t('table.end'),
+          t('common.status'),
+          t('common.certificateAvailable'),
+          t('common.employeeNote'),
+          t('common.administratorNote'),
+          t('common.validatedAt'),
+          t('table.validatedBy'),
         ],
         records.map((row) => [
           row.id,
@@ -186,11 +188,11 @@ function ReportsPage() {
           row.firstName,
           row.lastName,
           row.departmentName,
-          getAbsenceTypeLabel(row.absenceType),
+          getAbsenceTypeLabel(row.absenceType, t),
           row.startDate,
           row.endDate,
-          getSicknessStatusLabel(row.status),
-          row.certificateAvailable ? 'Ja' : 'Nein',
+          getSicknessStatusLabel(row.status, t),
+          row.certificateAvailable ? t('common.yes') : t('common.no'),
           row.employeeNote,
           row.administratorNote,
           row.validatedAt,
@@ -202,41 +204,40 @@ function ReportsPage() {
 
     if (tab === 'overview') {
       downloadCsv(
-        'abwesenheitsuebersicht.csv',
+        t('reports.csvOverview'),
         [
-          'Datensatztyp',
-          'Personalnummer',
-          'Name',
-          'Abteilung',
-          'Art',
-          'Beginn',
-          'Ende',
-          'Status',
+          t('common.recordType'),
+          t('table.number'),
+          t('table.name'),
+          t('common.department'),
+          t('table.kind'),
+          t('table.start'),
+          t('table.end'),
+          t('common.status'),
         ],
         records.map((row) => [
-          getRecordTypeLabel(row.recordType),
+          getRecordTypeLabel(row.recordType, t),
           row.employeeNumber,
           row.employeeName,
           row.departmentName,
           row.recordType === 'LEAVE'
-            ? getLeaveTypeLabel(row.typeName)
-            : getAbsenceTypeLabel(row.typeName),
+            ? getLeaveTypeLabel(row.typeName, t)
+            : getAbsenceTypeLabel(row.typeName, t),
           row.startDate,
           row.endDate,
           row.recordType === 'LEAVE'
-            ? getStatusLabel(row.status)
-            : getSicknessStatusLabel(row.status),
+            ? getStatusLabel(row.status, t)
+            : getSicknessStatusLabel(row.status, t),
         ])
       )
-      return
     }
   }
 
   return (
     <AdminPage
-      eyebrow="Administration"
-      title="Berichte"
-      lead="Auswertungen zu Urlaub, Krankmeldungen und der kombinierten Abwesenheitsübersicht. CSV-Export erfolgt lokal im Browser."
+      eyebrow={t('reports.eyebrow')}
+      title={t('reports.title')}
+      lead={t('reports.lead')}
       actions={
         <button
           type="button"
@@ -244,12 +245,12 @@ function ReportsPage() {
           onClick={exportCsv}
           disabled={isLoading || records.length === 0}
         >
-          CSV exportieren
+          {t('reports.export')}
         </button>
       }
     >
       <div className="report-tabs" role="tablist">
-        {TABS.map((item) => (
+        {tabs.map((item) => (
           <button
             key={item.id}
             type="button"
@@ -274,9 +275,9 @@ function ReportsPage() {
           <select
             value={employeeId}
             onChange={(event) => setEmployeeId(event.target.value)}
-            aria-label="Mitarbeiter"
+            aria-label={t('common.employee')}
           >
-            <option value="">Alle Mitarbeiter</option>
+            <option value="">{t('common.allEmployees')}</option>
             {employees.map((employee) => (
               <option key={employee.id} value={employee.id}>
                 {employee.firstName} {employee.lastName}
@@ -286,9 +287,9 @@ function ReportsPage() {
           <select
             value={departmentId}
             onChange={(event) => setDepartmentId(event.target.value)}
-            aria-label="Abteilung"
+            aria-label={t('common.department')}
           >
-            <option value="">Alle Abteilungen</option>
+            <option value="">{t('common.allDepartments')}</option>
             {departments.map((department) => (
               <option key={department.id} value={department.id}>
                 {department.name}
@@ -302,25 +303,25 @@ function ReportsPage() {
             <select
               value={leaveTypeId}
               onChange={(event) => setLeaveTypeId(event.target.value)}
-              aria-label="Urlaubsart"
+              aria-label={t('table.leaveType')}
             >
-              <option value="">Alle Urlaubsarten</option>
+              <option value="">{t('common.allLeaveTypes')}</option>
               {leaveTypes.map((type) => (
                 <option key={type.id} value={type.id}>
-                  {getLeaveTypeLabel(type.name)}
+                  {getLeaveTypeLabel(type.name, t)}
                 </option>
               ))}
             </select>
             <select
               value={status}
               onChange={(event) => setStatus(event.target.value)}
-              aria-label="Status"
+              aria-label={t('common.status')}
             >
-              <option value="">Alle Status</option>
-              <option value="PENDING">Ausstehend</option>
-              <option value="APPROVED">Genehmigt</option>
-              <option value="REJECTED">Abgelehnt</option>
-              <option value="CANCELLED">Storniert</option>
+              <option value="">{t('common.allStatuses')}</option>
+              <option value="PENDING">{t('status.PENDING')}</option>
+              <option value="APPROVED">{t('status.APPROVED')}</option>
+              <option value="REJECTED">{t('status.REJECTED')}</option>
+              <option value="CANCELLED">{t('status.CANCELLED')}</option>
             </select>
           </>
         ) : null}
@@ -330,23 +331,23 @@ function ReportsPage() {
             <select
               value={absenceType}
               onChange={(event) => setAbsenceType(event.target.value)}
-              aria-label="Abwesenheitsart"
+              aria-label={t('sicknessList.type')}
             >
-              <option value="">Alle Arten</option>
-              <option value="SICK_LEAVE">Krankmeldung</option>
-              <option value="CARE_LEAVE">Pflegefreistellung</option>
+              <option value="">{t('common.allTypes')}</option>
+              <option value="SICK_LEAVE">{t('absenceType.SICK_LEAVE')}</option>
+              <option value="CARE_LEAVE">{t('absenceType.CARE_LEAVE')}</option>
             </select>
             <select
               value={status}
               onChange={(event) => setStatus(event.target.value)}
-              aria-label="Status"
+              aria-label={t('common.status')}
             >
-              <option value="">Alle Status</option>
-              <option value="REPORTED">Gemeldet</option>
-              <option value="DOCUMENT_PENDING">Dokument ausstehend</option>
-              <option value="VALIDATED">Validiert</option>
-              <option value="REJECTED">Abgelehnt</option>
-              <option value="CLOSED">Abgeschlossen</option>
+              <option value="">{t('common.allStatuses')}</option>
+              <option value="REPORTED">{t('status.REPORTED')}</option>
+              <option value="DOCUMENT_PENDING">{t('status.DOCUMENT_PENDING')}</option>
+              <option value="VALIDATED">{t('status.VALIDATED')}</option>
+              <option value="REJECTED">{t('status.REJECTED')}</option>
+              <option value="CLOSED">{t('status.CLOSED')}</option>
             </select>
           </>
         ) : null}
@@ -355,11 +356,11 @@ function ReportsPage() {
           <select
             value={recordType}
             onChange={(event) => setRecordType(event.target.value)}
-            aria-label="Datensatztyp"
+            aria-label={t('common.recordType')}
           >
-            <option value="">Urlaub und Krankmeldung</option>
-            <option value="LEAVE">Nur Urlaub</option>
-            <option value="SICKNESS_ABSENCE">Nur Krankmeldung</option>
+            <option value="">{t('reports.overviewBoth')}</option>
+            <option value="LEAVE">{t('reports.overviewLeave')}</option>
+            <option value="SICKNESS_ABSENCE">{t('reports.overviewSickness')}</option>
           </select>
         ) : null}
 
@@ -367,21 +368,21 @@ function ReportsPage() {
           type="date"
           value={fromDate}
           onChange={(event) => setFromDate(event.target.value)}
-          aria-label="Von"
+          aria-label={t('common.from')}
         />
         <input
           type="date"
           value={toDate}
           onChange={(event) => setToDate(event.target.value)}
-          aria-label="Bis"
+          aria-label={t('common.to')}
         />
       </div>
 
-      <p className="field-hint">{total} Datensätze</p>
+      <p className="field-hint">{t('common.recordsCount', { count: total })}</p>
       {error ? <p className="form-error">{error}</p> : null}
-      {isLoading ? <p>Daten werden geladen…</p> : null}
+      {isLoading ? <p>{t('common.loading')}</p> : null}
       {!isLoading && records.length === 0 ? (
-        <p>Keine Datensätze für die gewählten Filter.</p>
+        <p>{t('reports.empty')}</p>
       ) : null}
 
       {!isLoading && tab === 'leave' && records.length > 0 ? (
@@ -389,15 +390,15 @@ function ReportsPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Personalnummer</th>
-                <th>Name</th>
-                <th>Abteilung</th>
-                <th>Urlaubsart</th>
-                <th>Beginn</th>
-                <th>Ende</th>
-                <th>Tage</th>
-                <th>Status</th>
-                <th>Prüfer</th>
+                <th>{t('table.number')}</th>
+                <th>{t('table.name')}</th>
+                <th>{t('common.department')}</th>
+                <th>{t('table.leaveType')}</th>
+                <th>{t('table.start')}</th>
+                <th>{t('table.end')}</th>
+                <th>{t('table.days')}</th>
+                <th>{t('common.status')}</th>
+                <th>{t('table.reviewer')}</th>
               </tr>
             </thead>
             <tbody>
@@ -408,12 +409,12 @@ function ReportsPage() {
                     {row.firstName} {row.lastName}
                   </td>
                   <td>{row.departmentName}</td>
-                  <td>{getLeaveTypeLabel(row.leaveTypeName)}</td>
-                  <td>{formatDate(row.startDate)}</td>
-                  <td>{formatDate(row.endDate)}</td>
+                  <td>{getLeaveTypeLabel(row.leaveTypeName, t)}</td>
+                  <td>{formatDate(row.startDate, language)}</td>
+                  <td>{formatDate(row.endDate, language)}</td>
                   <td>{row.requestedDays}</td>
-                  <td>{getStatusLabel(row.status)}</td>
-                  <td>{row.reviewerName || '—'}</td>
+                  <td>{getStatusLabel(row.status, t)}</td>
+                  <td>{row.reviewerName || t('common.dash')}</td>
                 </tr>
               ))}
             </tbody>
@@ -426,15 +427,15 @@ function ReportsPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Personalnummer</th>
-                <th>Name</th>
-                <th>Abteilung</th>
-                <th>Art</th>
-                <th>Beginn</th>
-                <th>Ende</th>
-                <th>Status</th>
-                <th>Bescheinigung</th>
-                <th>Validiert von</th>
+                <th>{t('table.number')}</th>
+                <th>{t('table.name')}</th>
+                <th>{t('common.department')}</th>
+                <th>{t('table.kind')}</th>
+                <th>{t('table.start')}</th>
+                <th>{t('table.end')}</th>
+                <th>{t('common.status')}</th>
+                <th>{t('table.certificate')}</th>
+                <th>{t('table.validatedBy')}</th>
               </tr>
             </thead>
             <tbody>
@@ -445,12 +446,12 @@ function ReportsPage() {
                     {row.firstName} {row.lastName}
                   </td>
                   <td>{row.departmentName}</td>
-                  <td>{getAbsenceTypeLabel(row.absenceType)}</td>
-                  <td>{formatDate(row.startDate)}</td>
-                  <td>{formatDate(row.endDate)}</td>
-                  <td>{getSicknessStatusLabel(row.status)}</td>
-                  <td>{row.certificateAvailable ? 'Ja' : 'Nein'}</td>
-                  <td>{row.validatorName || '—'}</td>
+                  <td>{getAbsenceTypeLabel(row.absenceType, t)}</td>
+                  <td>{formatDate(row.startDate, language)}</td>
+                  <td>{formatDate(row.endDate, language)}</td>
+                  <td>{getSicknessStatusLabel(row.status, t)}</td>
+                  <td>{row.certificateAvailable ? t('common.yes') : t('common.no')}</td>
+                  <td>{row.validatorName || t('common.dash')}</td>
                 </tr>
               ))}
             </tbody>
@@ -463,34 +464,34 @@ function ReportsPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Typ</th>
-                <th>Personalnummer</th>
-                <th>Name</th>
-                <th>Abteilung</th>
-                <th>Art</th>
-                <th>Beginn</th>
-                <th>Ende</th>
-                <th>Status</th>
+                <th>{t('table.type')}</th>
+                <th>{t('table.number')}</th>
+                <th>{t('table.name')}</th>
+                <th>{t('common.department')}</th>
+                <th>{t('table.kind')}</th>
+                <th>{t('table.start')}</th>
+                <th>{t('table.end')}</th>
+                <th>{t('common.status')}</th>
               </tr>
             </thead>
             <tbody>
               {records.map((row, index) => (
                 <tr key={`${row.recordType}-${row.employeeNumber}-${row.startDate}-${index}`}>
-                  <td>{getRecordTypeLabel(row.recordType)}</td>
+                  <td>{getRecordTypeLabel(row.recordType, t)}</td>
                   <td>{row.employeeNumber}</td>
                   <td>{row.employeeName}</td>
                   <td>{row.departmentName}</td>
                   <td>
                     {row.recordType === 'LEAVE'
-                      ? getLeaveTypeLabel(row.typeName)
-                      : getAbsenceTypeLabel(row.typeName)}
+                      ? getLeaveTypeLabel(row.typeName, t)
+                      : getAbsenceTypeLabel(row.typeName, t)}
                   </td>
-                  <td>{formatDate(row.startDate)}</td>
-                  <td>{formatDate(row.endDate)}</td>
+                  <td>{formatDate(row.startDate, language)}</td>
+                  <td>{formatDate(row.endDate, language)}</td>
                   <td>
                     {row.recordType === 'LEAVE'
-                      ? getStatusLabel(row.status)
-                      : getSicknessStatusLabel(row.status)}
+                      ? getStatusLabel(row.status, t)
+                      : getSicknessStatusLabel(row.status, t)}
                   </td>
                 </tr>
               ))}

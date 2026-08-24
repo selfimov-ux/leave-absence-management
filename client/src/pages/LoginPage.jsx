@@ -1,9 +1,12 @@
 import { useState } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import { isAuthenticated, saveSession } from '../authStorage'
+import PublicHeader from '../components/PublicHeader'
+import { useLanguage } from '../i18n/LanguageContext'
 
 function LoginPage() {
   const navigate = useNavigate()
+  const { t } = useLanguage()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -18,12 +21,12 @@ function LoginPage() {
     setError('')
 
     if (!username.trim()) {
-      setError('Bitte geben Sie Ihren Benutzernamen ein.')
+      setError(t('login.missingUsername'))
       return
     }
 
     if (!password) {
-      setError('Bitte geben Sie Ihr Passwort ein.')
+      setError(t('login.missingPassword'))
       return
     }
 
@@ -44,19 +47,14 @@ function LoginPage() {
       const data = await response.json().catch(() => null)
 
       if (!response.ok || !data?.token || !data?.user) {
-        setError(
-          data?.message ||
-            'Benutzername oder Passwort ist ungültig.'
-        )
+        setError(t('login.invalid'))
         return
       }
 
       saveSession(data.token, data.user)
       navigate('/dashboard', { replace: true })
     } catch {
-      setError(
-        'Die Anmeldung ist derzeit nicht möglich. Bitte versuchen Sie es später erneut.'
-      )
+      setError(t('login.unavailable'))
     } finally {
       setIsLoading(false)
     }
@@ -64,27 +62,16 @@ function LoginPage() {
 
   return (
     <div className="page">
-      <header className="header">
-        <div className="header-inner">
-          <Link to="/" className="brand brand-link">
-            <span className="brand-mark" aria-hidden="true">
-              UA
-            </span>
-            <span className="brand-name">Urlaubsverwaltung</span>
-          </Link>
-        </div>
-      </header>
+      <PublicHeader homeLink />
 
       <main className="auth-main">
         <section className="auth-card">
-          <p className="eyebrow">Anmeldung</p>
-          <h1>Anmelden</h1>
-          <p className="lead">
-            Melden Sie sich mit Ihrem Benutzernamen und Passwort an.
-          </p>
+          <p className="eyebrow">{t('login.eyebrow')}</p>
+          <h1>{t('login.title')}</h1>
+          <p className="lead">{t('login.lead')}</p>
 
           <form className="auth-form" onSubmit={handleSubmit} noValidate>
-            <label htmlFor="username">Benutzername</label>
+            <label htmlFor="username">{t('login.username')}</label>
             <input
               id="username"
               name="username"
@@ -95,7 +82,7 @@ function LoginPage() {
               disabled={isLoading}
             />
 
-            <label htmlFor="password">Passwort</label>
+            <label htmlFor="password">{t('login.password')}</label>
             <input
               id="password"
               name="password"
@@ -117,16 +104,14 @@ function LoginPage() {
               className="btn-primary"
               disabled={isLoading}
             >
-              {isLoading ? 'Anmeldung läuft…' : 'Anmelden'}
+              {isLoading ? t('login.submitting') : t('common.login')}
             </button>
           </form>
         </section>
       </main>
 
       <footer className="footer">
-        <p>
-          System zur Verwaltung von Urlauben und Abwesenheiten · Bachelorarbeit
-        </p>
+        <p>{t('common.footer')}</p>
       </footer>
     </div>
   )

@@ -1,4 +1,5 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { LanguageProvider } from './i18n/LanguageContext'
 import AdminRoute from './components/AdminRoute'
 import ProtectedRoute from './components/ProtectedRoute'
 import DashboardPage from './pages/DashboardPage'
@@ -24,6 +25,7 @@ import './App.css'
 
 function App() {
   return (
+    <LanguageProvider>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<HomePage />} />
@@ -166,6 +168,7 @@ function App() {
         />
       </Routes>
     </BrowserRouter>
+    </LanguageProvider>
   )
 }
 

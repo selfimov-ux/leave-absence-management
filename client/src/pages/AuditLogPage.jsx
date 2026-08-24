@@ -2,12 +2,26 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiRequest } from '../api'
 import AdminPage from '../components/AdminPage'
+import { useLanguage } from '../i18n/LanguageContext'
 import { formatDateTime, getAuditActionLabel } from '../leaveLabels'
 
 const PAGE_SIZE = 20
 
+const FILTER_ACTIONS = [
+  'CREATE_LEAVE_REQUEST',
+  'APPROVE_LEAVE_REQUEST',
+  'REJECT_LEAVE_REQUEST',
+  'CANCEL_LEAVE_REQUEST',
+  'REPORT_SICKNESS_ABSENCE',
+  'VALIDATE_SICKNESS_ABSENCE',
+  'UPLOAD_SICKNESS_CERTIFICATE',
+  'CREATE_EMPLOYEE',
+  'UPDATE_EMPLOYEE',
+]
+
 function AuditLogPage() {
   const navigate = useNavigate()
+  const { t, language } = useLanguage()
   const [users, setUsers] = useState([])
   const [userId, setUserId] = useState('')
   const [action, setAction] = useState('')
@@ -88,17 +102,17 @@ function AuditLogPage() {
 
   return (
     <AdminPage
-      eyebrow="Administration"
-      title="Aktivitätsprotokoll"
-      lead="Protokoll der administrativen und fachlichen Aktionen. Es werden keine Kennwörter, Token oder Bescheinigungsdateien angezeigt."
+      eyebrow={t('audit.eyebrow')}
+      title={t('audit.title')}
+      lead={t('audit.lead')}
     >
       <div className="toolbar toolbar-admin-sick">
         <select
           value={userId}
           onChange={changeFilter(setUserId)}
-          aria-label="Benutzer"
+          aria-label={t('audit.user')}
         >
-          <option value="">Alle Benutzer</option>
+          <option value="">{t('audit.allUsers')}</option>
           {users.map((user) => (
             <option key={user.userId} value={user.userId}>
               {user.label}
@@ -108,25 +122,21 @@ function AuditLogPage() {
         <select
           value={action}
           onChange={changeFilter(setAction)}
-          aria-label="Aktion"
+          aria-label={t('audit.action')}
         >
-          <option value="">Alle Aktionen</option>
-          <option value="CREATE_LEAVE_REQUEST">Urlaubsantrag erstellt</option>
-          <option value="APPROVE_LEAVE_REQUEST">Urlaubsantrag genehmigt</option>
-          <option value="REJECT_LEAVE_REQUEST">Urlaubsantrag abgelehnt</option>
-          <option value="CANCEL_LEAVE_REQUEST">Urlaubsantrag storniert</option>
-          <option value="REPORT_SICKNESS_ABSENCE">Krankmeldung erfasst</option>
-          <option value="VALIDATE_SICKNESS_ABSENCE">Krankmeldung validiert</option>
-          <option value="UPLOAD_SICKNESS_CERTIFICATE">Bescheinigung hochgeladen</option>
-          <option value="CREATE_EMPLOYEE">Mitarbeiter angelegt</option>
-          <option value="UPDATE_EMPLOYEE">Mitarbeiter aktualisiert</option>
+          <option value="">{t('audit.allActions')}</option>
+          {FILTER_ACTIONS.map((code) => (
+            <option key={code} value={code}>
+              {getAuditActionLabel(code, t)}
+            </option>
+          ))}
         </select>
         <select
           value={entityType}
           onChange={changeFilter(setEntityType)}
-          aria-label="Entität"
+          aria-label={t('audit.entity')}
         >
-          <option value="">Alle Entitäten</option>
+          <option value="">{t('audit.allEntities')}</option>
           <option value="leave_requests">leave_requests</option>
           <option value="sickness_absences">sickness_absences</option>
           <option value="employees">employees</option>
@@ -137,20 +147,20 @@ function AuditLogPage() {
           type="date"
           value={fromDate}
           onChange={changeFilter(setFromDate)}
-          aria-label="Zeitraum von"
+          aria-label={t('audit.from')}
         />
         <input
           type="date"
           value={toDate}
           onChange={changeFilter(setToDate)}
-          aria-label="Zeitraum bis"
+          aria-label={t('audit.to')}
         />
       </div>
 
       {error ? <p className="form-error">{error}</p> : null}
-      {isLoading ? <p>Daten werden geladen…</p> : null}
+      {isLoading ? <p>{t('common.loading')}</p> : null}
       {!isLoading && !error && records.length === 0 ? (
-        <p>Keine Protokolleinträge für die gewählten Filter.</p>
+        <p>{t('audit.empty')}</p>
       ) : null}
 
       {!isLoading && records.length > 0 ? (
@@ -158,20 +168,20 @@ function AuditLogPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Zeitpunkt</th>
-                <th>Benutzer</th>
-                <th>Aktion</th>
-                <th>Entität</th>
-                <th>ID</th>
-                <th>Beschreibung</th>
+                <th>{t('audit.timestamp')}</th>
+                <th>{t('audit.user')}</th>
+                <th>{t('audit.action')}</th>
+                <th>{t('audit.entity')}</th>
+                <th>{t('audit.id')}</th>
+                <th>{t('audit.description')}</th>
               </tr>
             </thead>
             <tbody>
               {records.map((row) => (
                 <tr key={row.id}>
-                  <td>{formatDateTime(row.timestamp)}</td>
+                  <td>{formatDateTime(row.timestamp, language)}</td>
                   <td>{row.actorName}</td>
-                  <td>{getAuditActionLabel(row.action)}</td>
+                  <td>{getAuditActionLabel(row.action, t)}</td>
                   <td>{row.entityType}</td>
                   <td>{row.entityId}</td>
                   <td>{row.description}</td>
@@ -190,18 +200,16 @@ function AuditLogPage() {
             disabled={page <= 1}
             onClick={() => setPage((current) => Math.max(1, current - 1))}
           >
-            Zurück
+            {t('audit.previous')}
           </button>
-          <span>
-            Seite {page} von {totalPages}
-          </span>
+          <span>{t('audit.pageOf', { page, totalPages })}</span>
           <button
             type="button"
             className="btn-secondary"
             disabled={page >= totalPages}
             onClick={() => setPage((current) => current + 1)}
           >
-            Weiter
+            {t('audit.next')}
           </button>
         </div>
       ) : null}

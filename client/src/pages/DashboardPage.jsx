@@ -1,35 +1,36 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import AppHeader from '../components/AppHeader'
+import { useLanguage } from '../i18n/LanguageContext'
+import { getRoleLabel } from '../leaveLabels'
 import {
   clearSession,
-  getRoleLabel,
   getToken,
   getUser,
   saveSession,
 } from '../authStorage'
 
-function getDashboardCards(role) {
+function getDashboardCards(role, t) {
   if (role === 'MANAGER') {
     return [
       {
-        title: 'Anträge meiner Abteilung',
-        text: 'Urlaubsanträge der eigenen Abteilung prüfen und entscheiden.',
+        title: t('dashboard.cards.managerLeaveTitle'),
+        text: t('dashboard.cards.managerLeaveText'),
         to: '/manager/leave-requests',
       },
       {
-        title: 'Meine Urlaubsanträge',
-        text: 'Eigene Urlaubsanträge stellen und einsehen.',
+        title: t('dashboard.cards.myLeaveTitle'),
+        text: t('dashboard.cards.myLeaveText'),
         to: '/leave-requests',
       },
       {
-        title: 'Abwesenheiten der Abteilung',
-        text: 'Krankmeldungen der eigenen Abteilung einsehen. Die Prüfung erfolgt durch die Administration.',
+        title: t('dashboard.cards.deptAbsenceTitle'),
+        text: t('dashboard.cards.deptAbsenceText'),
         to: '/manager/sickness-absences',
       },
       {
-        title: 'Meine Krankmeldungen',
-        text: 'Eigene Krankmeldungen erfassen. Sie verringern den Jahresurlaub nicht.',
+        title: t('dashboard.cards.mySicknessTitle'),
+        text: t('dashboard.cards.mySicknessManagerText'),
         to: '/sickness-absences',
       },
     ]
@@ -38,33 +39,33 @@ function getDashboardCards(role) {
   if (role === 'ADMINISTRATOR') {
     return [
       {
-        title: 'Mitarbeiterverwaltung',
-        text: 'Mitarbeiterkonten und Stammdaten anlegen und bearbeiten.',
+        title: t('dashboard.cards.employeesTitle'),
+        text: t('dashboard.cards.employeesText'),
         to: '/admin/employees',
       },
       {
-        title: 'Abteilungsverwaltung',
-        text: 'Abteilungen und Zuständigkeiten pflegen.',
+        title: t('dashboard.cards.departmentsTitle'),
+        text: t('dashboard.cards.departmentsText'),
         to: '/admin/departments',
       },
       {
-        title: 'Urlaubsartenverwaltung',
-        text: 'Urlaubsarten anlegen, bearbeiten und aktiv oder inaktiv setzen.',
+        title: t('dashboard.cards.leaveTypesTitle'),
+        text: t('dashboard.cards.leaveTypesText'),
         to: '/admin/leave-types',
       },
       {
-        title: 'Verwaltung von Krankmeldungen',
-        text: 'Krankmeldungen prüfen, validieren, ablehnen oder abschließen.',
+        title: t('dashboard.cards.adminSicknessTitle'),
+        text: t('dashboard.cards.adminSicknessText'),
         to: '/admin/sickness-absences',
       },
       {
-        title: 'Berichte',
-        text: 'Urlaub, Krankmeldungen und Abwesenheitsübersicht auswerten und als CSV exportieren.',
+        title: t('dashboard.cards.reportsTitle'),
+        text: t('dashboard.cards.reportsText'),
         to: '/admin/reports',
       },
       {
-        title: 'Aktivitätsprotokoll',
-        text: 'Aktionen im System nachvollziehen. Es werden keine Kennwörter oder Bescheinigungsdateien angezeigt.',
+        title: t('dashboard.cards.auditTitle'),
+        text: t('dashboard.cards.auditText'),
         to: '/admin/audit-logs',
       },
     ]
@@ -72,18 +73,18 @@ function getDashboardCards(role) {
 
   return [
     {
-      title: 'Meine Urlaubsanträge',
-      text: 'Eigene Urlaubsanträge einreichen, einsehen und stornieren.',
+      title: t('dashboard.cards.myLeaveTitle'),
+      text: t('dashboard.cards.myLeaveEmployeeText'),
       to: '/leave-requests',
     },
     {
-      title: 'Meine Krankmeldungen',
-      text: 'Krankmeldungen erfassen und nachverfolgen. Sie verringern den Jahresurlaub nicht.',
+      title: t('dashboard.cards.mySicknessTitle'),
+      text: t('dashboard.cards.mySicknessEmployeeText'),
       to: '/sickness-absences',
     },
     {
-      title: 'Verbleibender Urlaub',
-      text: 'Verbleibendes Urlaubsguthaben und Kontingente anzeigen.',
+      title: t('dashboard.cards.balancesTitle'),
+      text: t('dashboard.cards.balancesText'),
       to: '/leave-balances',
     },
   ]
@@ -91,12 +92,13 @@ function getDashboardCards(role) {
 
 function DashboardPage() {
   const navigate = useNavigate()
+  const { t } = useLanguage()
   const [user, setUser] = useState(getUser())
-  const [statusMessage, setStatusMessage] = useState('Sitzung wird geprüft…')
+  const [statusMessage, setStatusMessage] = useState(t('dashboard.checkingSession'))
 
   const cards = useMemo(
-    () => getDashboardCards(user?.role),
-    [user?.role]
+    () => getDashboardCards(user?.role, t),
+    [user?.role, t]
   )
 
   useEffect(() => {
@@ -132,9 +134,7 @@ function DashboardPage() {
         }
       } catch {
         if (!cancelled) {
-          setStatusMessage(
-            'Die Sitzung konnte nicht geprüft werden. Die gespeicherten Daten werden angezeigt.'
-          )
+          setStatusMessage(t('dashboard.sessionFailed'))
         }
       }
     }
@@ -144,37 +144,37 @@ function DashboardPage() {
     return () => {
       cancelled = true
     }
-  }, [navigate])
+  }, [navigate, t])
 
   if (!user) {
     return null
   }
 
   const fullName = `${user.firstName} ${user.lastName}`
-  const roleLabel = getRoleLabel(user.role)
+  const roleLabel = getRoleLabel(user.role, t)
 
   return (
     <div className="page">
       <AppHeader />
       <main>
         <section className="hero dashboard-hero">
-          <p className="eyebrow">Übersicht</p>
-          <h1>Willkommen, {fullName}</h1>
+          <p className="eyebrow">{t('dashboard.eyebrow')}</p>
+          <h1>{t('dashboard.welcome', { name: fullName })}</h1>
           <p className="lead">
-            Angemeldet als {roleLabel}.
+            {t('dashboard.signedInAs', { role: roleLabel })}
             {user.role === 'ADMINISTRATOR'
-              ? ' Wählen Sie einen Verwaltungsbereich.'
-              : ' Die folgenden Bereiche sind Platzhalter für spätere Funktionen.'}
+              ? t('dashboard.adminHint')
+              : t('dashboard.otherHint')}
           </p>
           {statusMessage ? <p className="status-note">{statusMessage}</p> : null}
         </section>
 
-        <section className="roles" aria-label="Dashboardbereiche">
+        <section className="roles" aria-label={t('dashboard.sectionsLabel')}>
           <div className="cards">
             {cards.map((card) => {
               const content = (
                 <>
-                  <span className="card-label">Bereich</span>
+                  <span className="card-label">{t('common.area')}</span>
                   <h3>{card.title}</h3>
                   <p>{card.text}</p>
                 </>
@@ -182,7 +182,7 @@ function DashboardPage() {
 
               if (card.to) {
                 return (
-                  <Link key={card.title} to={card.to} className="card card-link">
+                  <Link key={card.to} to={card.to} className="card card-link">
                     {content}
                   </Link>
                 )
@@ -199,9 +199,7 @@ function DashboardPage() {
       </main>
 
       <footer className="footer">
-        <p>
-          System zur Verwaltung von Urlauben und Abwesenheiten · Bachelorarbeit
-        </p>
+        <p>{t('common.footer')}</p>
       </footer>
     </div>
   )

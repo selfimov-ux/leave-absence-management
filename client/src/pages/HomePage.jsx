@@ -1,71 +1,55 @@
 import { Link } from 'react-router-dom'
+import PublicHeader from '../components/PublicHeader'
+import { useLanguage } from '../i18n/LanguageContext'
 
 function HomePage() {
+  const { t } = useLanguage()
+
   return (
     <div className="page">
-      <header className="header">
-        <div className="header-inner">
-          <div className="brand">
-            <span className="brand-mark" aria-hidden="true">
-              UA
-            </span>
-            <span className="brand-name">Urlaubsverwaltung</span>
-          </div>
+      <PublicHeader
+        actions={
           <Link to="/login" className="btn-login">
-            Anmelden
+            {t('common.login')}
           </Link>
-        </div>
-      </header>
+        }
+      />
 
       <main>
         <section className="hero">
-          <p className="eyebrow">Bachelorarbeit · Webanwendung</p>
-          <h1>System zur Verwaltung von Urlauben und Abwesenheiten</h1>
-          <p className="lead">
-            Mitarbeiter können Urlaubsanträge und Krankmeldungen einreichen.
-            Vorgesetzte und Administratoren können diese verwalten und
-            bearbeiten.
-          </p>
+          <p className="eyebrow">{t('home.eyebrow')}</p>
+          <h1>{t('home.title')}</h1>
+          <p className="lead">{t('home.lead')}</p>
           <Link to="/login" className="btn-primary">
-            Anmelden
+            {t('common.login')}
           </Link>
         </section>
 
         <section className="roles" aria-labelledby="roles-heading">
-          <h2 id="roles-heading">Benutzerrollen</h2>
-          <p className="roles-intro">
-            Das System unterstützt drei Rollen mit klar abgegrenzten Aufgaben.
-          </p>
+          <h2 id="roles-heading">{t('home.rolesHeading')}</h2>
+          <p className="roles-intro">{t('home.rolesIntro')}</p>
           <div className="cards">
             <article className="card">
-              <span className="card-label">Rolle</span>
-              <h3>Mitarbeiter</h3>
-              <p>
-                Urlaubsanträge und Krankmeldungen erstellen und einsehen.
-              </p>
+              <span className="card-label">{t('home.roleLabel')}</span>
+              <h3>{t('home.employeeTitle')}</h3>
+              <p>{t('home.employeeText')}</p>
             </article>
             <article className="card">
-              <span className="card-label">Rolle</span>
-              <h3>Vorgesetzte</h3>
-              <p>
-                Anträge der eigenen Abteilung prüfen und bearbeiten.
-              </p>
+              <span className="card-label">{t('home.roleLabel')}</span>
+              <h3>{t('home.managerTitle')}</h3>
+              <p>{t('home.managerText')}</p>
             </article>
             <article className="card">
-              <span className="card-label">Rolle</span>
-              <h3>Administratoren</h3>
-              <p>
-                Mitarbeiter, Abteilungen, Urlaubsarten und Berichte verwalten.
-              </p>
+              <span className="card-label">{t('home.roleLabel')}</span>
+              <h3>{t('home.adminTitle')}</h3>
+              <p>{t('home.adminText')}</p>
             </article>
           </div>
         </section>
       </main>
 
       <footer className="footer">
-        <p>
-          System zur Verwaltung von Urlauben und Abwesenheiten · Bachelorarbeit
-        </p>
+        <p>{t('common.footer')}</p>
       </footer>
     </div>
   )

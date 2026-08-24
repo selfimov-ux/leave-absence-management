@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom'
+import { useLanguage } from '../i18n/LanguageContext'
 import AppHeader from './AppHeader'
 
 function AdminPage({ title, eyebrow, lead, actions, children }) {
+  const { t } = useLanguage()
+
   return (
     <div className="page">
       <AppHeader />
@@ -16,15 +19,13 @@ function AdminPage({ title, eyebrow, lead, actions, children }) {
             {actions}
           </div>
           <p className="back-link-wrap">
-            <Link to="/dashboard">Zurück zur Übersicht</Link>
+            <Link to="/dashboard">{t('common.backToDashboard')}</Link>
           </p>
         </section>
         <section className="admin-content">{children}</section>
       </main>
       <footer className="footer">
-        <p>
-          System zur Verwaltung von Urlauben und Abwesenheiten · Bachelorarbeit
-        </p>
+        <p>{t('common.footer')}</p>
       </footer>
     </div>
   )

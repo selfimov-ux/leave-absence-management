@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiRequest } from '../api'
 import AdminPage from '../components/AdminPage'
+import { useLanguage } from '../i18n/LanguageContext'
+import { getLeaveTypeLabel } from '../leaveLabels'
 
 const EMPTY_FORM = {
   name: '',
@@ -11,6 +13,7 @@ const EMPTY_FORM = {
 
 function LeaveTypePage() {
   const navigate = useNavigate()
+  const { t } = useLanguage()
   const [leaveTypes, setLeaveTypes] = useState([])
   const [form, setForm] = useState(EMPTY_FORM)
   const [editingId, setEditingId] = useState(null)
@@ -61,7 +64,7 @@ function LeaveTypePage() {
   async function handleSubmit(event) {
     event.preventDefault()
     if (!form.name.trim()) {
-      setError('Der Name der Urlaubsart ist erforderlich.')
+      setError(t('leaveTypes.needName'))
       return
     }
 
@@ -98,8 +101,8 @@ function LeaveTypePage() {
     const nextActive = !leaveType.isActive
     const confirmed = window.confirm(
       nextActive
-        ? `Möchten Sie die Urlaubsart „${leaveType.name}“ aktivieren?`
-        : `Möchten Sie die Urlaubsart „${leaveType.name}“ deaktivieren?`
+        ? t('leaveTypes.activateConfirm', { name: leaveType.name })
+        : t('leaveTypes.deactivateConfirm', { name: leaveType.name })
     )
     if (!confirmed) {
       return
@@ -120,22 +123,24 @@ function LeaveTypePage() {
 
   return (
     <AdminPage
-      eyebrow="Administration"
-      title="Urlaubsartenverwaltung"
-      lead="Urlaubsarten anlegen, bearbeiten und aktiv oder inaktiv setzen. Ein jährliches Limit wird in der aktuellen Datenbank je Mitarbeiter in den Urlaubskontingenten geführt, nicht in der Urlaubsart."
+      eyebrow={t('leaveTypes.eyebrow')}
+      title={t('leaveTypes.title')}
+      lead={t('leaveTypes.lead')}
       actions={
         <button type="button" className="btn-primary" onClick={openCreate}>
-          Neue Urlaubsart anlegen
+          {t('leaveTypes.create')}
         </button>
       }
     >
       {error ? <p className="form-error">{error}</p> : null}
-      {isLoading ? <p>Daten werden geladen…</p> : null}
+      {isLoading ? <p>{t('common.loading')}</p> : null}
 
       {showForm ? (
         <form className="admin-form" onSubmit={handleSubmit} noValidate>
-          <h2>{editingId ? 'Urlaubsart bearbeiten' : 'Neue Urlaubsart'}</h2>
-          <label htmlFor="leaveTypeName">Urlaubsart</label>
+          <h2>
+            {editingId ? t('leaveTypes.editTitle') : t('leaveTypes.newTitle')}
+          </h2>
+          <label htmlFor="leaveTypeName">{t('leaveTypes.name')}</label>
           <input
             id="leaveTypeName"
             value={form.name}
@@ -143,7 +148,7 @@ function LeaveTypePage() {
               setForm((current) => ({ ...current, name: event.target.value }))
             }
           />
-          <label htmlFor="leaveTypeDescription">Beschreibung</label>
+          <label htmlFor="leaveTypeDescription">{t('leaveTypes.description')}</label>
           <textarea
             id="leaveTypeDescription"
             rows="3"
@@ -166,25 +171,25 @@ function LeaveTypePage() {
                 }))
               }
             />
-            Aktiv
+            {t('employees.active')}
           </label>
           <div className="form-actions">
             <button type="submit" className="btn-primary" disabled={isSaving}>
-              {isSaving ? 'Wird gespeichert…' : 'Speichern'}
+              {isSaving ? t('common.saving') : t('common.save')}
             </button>
             <button
               type="button"
               className="btn-secondary"
               onClick={() => setShowForm(false)}
             >
-              Abbrechen
+              {t('common.cancel')}
             </button>
           </div>
         </form>
       ) : null}
 
       {!isLoading && leaveTypes.length === 0 ? (
-        <p>Keine Urlaubsarten vorhanden.</p>
+        <p>{t('leaveTypes.empty')}</p>
       ) : null}
 
       {!isLoading && leaveTypes.length > 0 ? (
@@ -192,11 +197,11 @@ function LeaveTypePage() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Urlaubsart</th>
-                <th>Beschreibung</th>
-                <th>Jährliches Limit</th>
-                <th>Status</th>
-                <th>Aktionen</th>
+                <th>{t('leaveTypes.name')}</th>
+                <th>{t('leaveTypes.description')}</th>
+                <th>{t('leaveTypes.annualLimit')}</th>
+                <th>{t('common.status')}</th>
+                <th>{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -205,16 +210,18 @@ function LeaveTypePage() {
                   key={leaveType.id}
                   className={leaveType.isActive ? '' : 'row-inactive'}
                 >
-                  <td>{leaveType.name}</td>
-                  <td>{leaveType.description || '—'}</td>
-                  <td>pro Mitarbeiterkontingent</td>
+                  <td>{getLeaveTypeLabel(leaveType.name, t)}</td>
+                  <td>{leaveType.description || t('common.dash')}</td>
+                  <td>{t('leaveTypes.perBalance')}</td>
                   <td>
                     <span
                       className={
                         leaveType.isActive ? 'badge badge-active' : 'badge badge-inactive'
                       }
                     >
-                      {leaveType.isActive ? 'Aktiv' : 'Inaktiv'}
+                      {leaveType.isActive
+                        ? t('employees.active')
+                        : t('employees.inactive')}
                     </span>
                   </td>
                   <td className="actions">
@@ -223,14 +230,16 @@ function LeaveTypePage() {
                       className="link-button"
                       onClick={() => openEdit(leaveType)}
                     >
-                      Bearbeiten
+                      {t('common.edit')}
                     </button>
                     <button
                       type="button"
                       className="link-button"
                       onClick={() => handleStatusChange(leaveType)}
                     >
-                      {leaveType.isActive ? 'Deaktivieren' : 'Aktivieren'}
+                      {leaveType.isActive
+                        ? t('employees.deactivate')
+                        : t('employees.activate')}
                     </button>
                   </td>
                 </tr>

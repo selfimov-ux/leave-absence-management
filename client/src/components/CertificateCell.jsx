@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { fetchAuthorizedFile } from '../api'
+import { useLanguage } from '../i18n/LanguageContext'
 
 function CertificateCell({ record }) {
+  const { t } = useLanguage()
   const [previewUrl, setPreviewUrl] = useState(null)
   const [error, setError] = useState('')
   const [isOpening, setIsOpening] = useState(false)
@@ -40,7 +42,7 @@ function CertificateCell({ record }) {
   }
 
   if (!record.hasCertificateFile) {
-    return '—'
+    return t('common.dash')
   }
 
   return (
@@ -51,7 +53,7 @@ function CertificateCell({ record }) {
         onClick={openPreview}
         disabled={isOpening}
       >
-        {isOpening ? 'Wird geladen…' : 'Bescheinigung anzeigen'}
+        {isOpening ? t('certificate.loading') : t('certificate.show')}
       </button>
       {error ? <p className="form-error">{error}</p> : null}
 
@@ -62,21 +64,21 @@ function CertificateCell({ record }) {
               <a
                 className="btn-secondary"
                 href={previewUrl}
-                download="bescheinigung.pdf"
+                download={t('certificate.filename')}
               >
-                Herunterladen
+                {t('certificate.download')}
               </a>
               <button
                 type="button"
                 className="btn-primary"
                 onClick={closePreview}
               >
-                Schließen
+                {t('certificate.close')}
               </button>
             </div>
             <iframe
               className="certificate-preview"
-              title="Bescheinigung"
+              title={t('certificate.alt')}
               src={previewUrl}
             />
           </div>

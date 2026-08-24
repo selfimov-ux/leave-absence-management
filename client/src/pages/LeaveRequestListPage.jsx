@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { apiRequest } from '../api'
 import AdminPage from '../components/AdminPage'
+import { useLanguage } from '../i18n/LanguageContext'
 import { formatDate, getLeaveTypeLabel, getStatusLabel } from '../leaveLabels'
 
 function LeaveRequestListPage() {
   const navigate = useNavigate()
+  const { t, language } = useLanguage()
   const [requests, setRequests] = useState([])
   const [status, setStatus] = useState('')
   const [error, setError] = useState('')
@@ -35,7 +37,10 @@ function LeaveRequestListPage() {
 
   async function handleCancel(request) {
     const confirmed = window.confirm(
-      `Möchten Sie den Antrag vom ${formatDate(request.startDate)} bis ${formatDate(request.endDate)} wirklich stornieren?`
+      t('leaveList.cancelConfirm', {
+        from: formatDate(request.startDate, language),
+        to: formatDate(request.endDate, language),
+      })
     )
     if (!confirmed) {
       return
@@ -53,29 +58,29 @@ function LeaveRequestListPage() {
 
   return (
     <AdminPage
-      eyebrow="Urlaub"
-      title="Meine Urlaubsanträge"
-      lead="Eigene Anträge einsehen, neue Anträge stellen und ausstehende Anträge stornieren."
+      eyebrow={t('leaveList.eyebrow')}
+      title={t('leaveList.title')}
+      lead={t('leaveList.lead')}
       actions={
         <Link to="/leave-requests/new" className="btn-primary">
-          Neuen Urlaubsantrag stellen
+          {t('leaveList.newRequest')}
         </Link>
       }
     >
       <div className="toolbar">
         <select value={status} onChange={(event) => setStatus(event.target.value)}>
-          <option value="">Alle Status</option>
-          <option value="PENDING">Ausstehend</option>
-          <option value="APPROVED">Genehmigt</option>
-          <option value="REJECTED">Abgelehnt</option>
-          <option value="CANCELLED">Storniert</option>
+          <option value="">{t('common.allStatuses')}</option>
+          <option value="PENDING">{t('status.PENDING')}</option>
+          <option value="APPROVED">{t('status.APPROVED')}</option>
+          <option value="REJECTED">{t('status.REJECTED')}</option>
+          <option value="CANCELLED">{t('status.CANCELLED')}</option>
         </select>
       </div>
 
       {error ? <p className="form-error">{error}</p> : null}
-      {isLoading ? <p>Daten werden geladen…</p> : null}
+      {isLoading ? <p>{t('common.loading')}</p> : null}
       {!isLoading && requests.length === 0 ? (
-        <p>Es sind keine Urlaubsanträge vorhanden.</p>
+        <p>{t('leaveList.empty')}</p>
       ) : null}
 
       {!isLoading && requests.length > 0 ? (
@@ -83,26 +88,26 @@ function LeaveRequestListPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Urlaubsart</th>
-                <th>Beginn</th>
-                <th>Ende</th>
-                <th>Arbeitstage</th>
-                <th>Status</th>
-                <th>Bemerkung</th>
-                <th>Bearbeitet von</th>
-                <th>Aktionen</th>
+                <th>{t('leaveList.leaveType')}</th>
+                <th>{t('leaveList.start')}</th>
+                <th>{t('leaveList.end')}</th>
+                <th>{t('common.workingDays')}</th>
+                <th>{t('common.status')}</th>
+                <th>{t('common.note')}</th>
+                <th>{t('common.reviewedBy')}</th>
+                <th>{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody>
               {requests.map((request) => (
                 <tr key={request.id}>
-                  <td>{getLeaveTypeLabel(request.leaveTypeName)}</td>
-                  <td>{formatDate(request.startDate)}</td>
-                  <td>{formatDate(request.endDate)}</td>
+                  <td>{getLeaveTypeLabel(request.leaveTypeName, t)}</td>
+                  <td>{formatDate(request.startDate, language)}</td>
+                  <td>{formatDate(request.endDate, language)}</td>
                   <td>{request.requestedDays}</td>
-                  <td>{getStatusLabel(request.status)}</td>
-                  <td>{request.reason || '—'}</td>
-                  <td>{request.reviewerName || '—'}</td>
+                  <td>{getStatusLabel(request.status, t)}</td>
+                  <td>{request.reason || t('common.dash')}</td>
+                  <td>{request.reviewerName || t('common.dash')}</td>
                   <td className="actions">
                     {request.status === 'PENDING' ? (
                       <button
@@ -110,10 +115,10 @@ function LeaveRequestListPage() {
                         className="link-button"
                         onClick={() => handleCancel(request)}
                       >
-                        Stornieren
+                        {t('leaveList.cancel')}
                       </button>
                     ) : (
-                      '—'
+                      t('common.dash')
                     )}
                   </td>
                 </tr>

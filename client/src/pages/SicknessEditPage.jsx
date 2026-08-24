@@ -3,10 +3,13 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { apiFormRequest, apiRequest } from '../api'
 import AdminPage from '../components/AdminPage'
 import CertificateCell from '../components/CertificateCell'
+import { useLanguage } from '../i18n/LanguageContext'
+import { formatDate } from '../leaveLabels'
 
 function SicknessEditPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { t, language } = useLanguage()
   const [endDate, setEndDate] = useState('')
   const [certificate, setCertificate] = useState(null)
   const [record, setRecord] = useState(null)
@@ -23,14 +26,14 @@ function SicknessEditPage() {
         const rows = await apiRequest('/api/sickness-absences/me')
         const found = rows.find((item) => String(item.id) === String(id))
         if (!found) {
-          setError('Die Krankmeldung wurde nicht gefunden.')
+          setError(t('sicknessEdit.notFound'))
           return
         }
         if (
           found.status !== 'REPORTED' &&
           found.status !== 'DOCUMENT_PENDING'
         ) {
-          setError('Diese Krankmeldung kann nicht mehr bearbeitet werden.')
+          setError(t('sicknessEdit.notEditable'))
           return
         }
         setRecord(found)
@@ -50,21 +53,21 @@ function SicknessEditPage() {
     }
 
     load()
-  }, [id, navigate])
+  }, [id, navigate, t])
 
   async function handleSubmit(event) {
     event.preventDefault()
     if (endDate && startDate && endDate < startDate) {
-      setError('Das Endedatum darf nicht vor dem Beginndatum liegen.')
+      setError(t('sicknessNew.endBeforeStart'))
       return
     }
 
     if (certificate && certificate.type !== 'application/pdf') {
-      setError('Nur PDF-Dateien sind erlaubt.')
+      setError(t('sicknessNew.pdfOnly'))
       return
     }
     if (certificate && certificate.size > 5 * 1024 * 1024) {
-      setError('Die Datei darf höchstens 5 MB groß sein.')
+      setError(t('sicknessNew.tooLarge'))
       return
     }
 
@@ -93,18 +96,22 @@ function SicknessEditPage() {
 
   return (
     <AdminPage
-      eyebrow="Abwesenheit"
-      title="Krankmeldung bearbeiten"
-      lead="Nur Endedatum, Bescheinigung und Bemerkung können geändert werden."
+      eyebrow={t('sicknessNew.eyebrow')}
+      title={t('sicknessEdit.title')}
+      lead={t('sicknessEdit.lead')}
     >
-      {isLoading ? <p>Daten werden geladen…</p> : null}
+      {isLoading ? <p>{t('common.loading')}</p> : null}
       {error ? <p className="form-error">{error}</p> : null}
 
       {!isLoading && canEdit ? (
         <form className="admin-form" onSubmit={handleSubmit} noValidate>
-          <p className="field-hint">Beginn: {startDate || '—'}</p>
+          <p className="field-hint">
+            {t('sicknessEdit.startLabel', {
+              date: formatDate(startDate, language),
+            })}
+          </p>
 
-          <label htmlFor="endDate">Ende</label>
+          <label htmlFor="endDate">{t('sicknessNew.end')}</label>
           <input
             id="endDate"
             type="date"
@@ -112,10 +119,10 @@ function SicknessEditPage() {
             onChange={(event) => setEndDate(event.target.value)}
           />
 
-          <label htmlFor="certificate">Bescheinigungsreferenz</label>
+          <label htmlFor="certificate">{t('sicknessList.certificate')}</label>
           {record ? (
             <p className="field-hint">
-              Aktuell: <CertificateCell record={record} />
+              {t('sicknessEdit.current')} <CertificateCell record={record} />
             </p>
           ) : null}
           <input
@@ -124,13 +131,9 @@ function SicknessEditPage() {
             accept="application/pdf,.pdf"
             onChange={(event) => setCertificate(event.target.files[0] || null)}
           />
-          <p className="field-hint">
-            Eine neue PDF-Datei ersetzt die bisherige Bescheinigung. Ohne
-            Auswahl bleibt die vorhandene Datei erhalten. Nur Sie und die
-            Administration können die Datei öffnen.
-          </p>
+          <p className="field-hint">{t('sicknessEdit.replaceHint')}</p>
 
-          <label htmlFor="employeeNote">Bemerkung</label>
+          <label htmlFor="employeeNote">{t('sicknessNew.note')}</label>
           <textarea
             id="employeeNote"
             rows="3"
@@ -140,10 +143,10 @@ function SicknessEditPage() {
 
           <div className="form-actions">
             <button type="submit" className="btn-primary" disabled={isSaving}>
-              {isSaving ? 'Wird gespeichert…' : 'Speichern'}
+              {isSaving ? t('common.saving') : t('common.save')}
             </button>
             <Link to="/sickness-absences" className="btn-secondary">
-              Abbrechen
+              {t('common.cancel')}
             </Link>
           </div>
         </form>

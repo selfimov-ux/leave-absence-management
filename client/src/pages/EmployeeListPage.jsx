@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { apiRequest } from '../api'
-import { getRoleLabel, getUser } from '../authStorage'
+import { getUser } from '../authStorage'
 import AdminPage from '../components/AdminPage'
+import { useLanguage } from '../i18n/LanguageContext'
+import { getRoleLabel } from '../leaveLabels'
 
 function EmployeeListPage() {
   const navigate = useNavigate()
+  const { t } = useLanguage()
   const currentUser = getUser()
   const [employees, setEmployees] = useState([])
   const [departments, setDepartments] = useState([])
@@ -61,10 +64,11 @@ function EmployeeListPage() {
 
   async function handleStatusChange(employee) {
     const nextActive = !employee.isActive
+    const name = `${employee.firstName} ${employee.lastName}`
     const confirmed = window.confirm(
       nextActive
-        ? `Möchten Sie ${employee.firstName} ${employee.lastName} wirklich aktivieren?`
-        : `Möchten Sie ${employee.firstName} ${employee.lastName} wirklich deaktivieren?`
+        ? t('employees.activateConfirm', { name })
+        : t('employees.deactivateConfirm', { name })
     )
     if (!confirmed) {
       return
@@ -85,19 +89,19 @@ function EmployeeListPage() {
 
   return (
     <AdminPage
-      eyebrow="Administration"
-      title="Mitarbeiterverwaltung"
-      lead="Mitarbeiterkonten anlegen, bearbeiten und aktivieren oder deaktivieren."
+      eyebrow={t('employees.eyebrow')}
+      title={t('employees.title')}
+      lead={t('employees.lead')}
       actions={
         <Link to="/admin/employees/new" className="btn-primary">
-          Neuen Mitarbeiter anlegen
+          {t('employees.newEmployee')}
         </Link>
       }
     >
       <div className="toolbar">
         <input
           type="search"
-          placeholder="Suche nach Nummer, Name oder E-Mail"
+          placeholder={t('employees.searchPlaceholder')}
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
@@ -105,7 +109,7 @@ function EmployeeListPage() {
           value={departmentId}
           onChange={(event) => setDepartmentId(event.target.value)}
         >
-          <option value="">Alle Abteilungen</option>
+          <option value="">{t('common.allDepartments')}</option>
           {departments.map((department) => (
             <option key={department.id} value={department.id}>
               {department.name}
@@ -116,16 +120,16 @@ function EmployeeListPage() {
           value={status}
           onChange={(event) => setStatus(event.target.value)}
         >
-          <option value="all">Alle Status</option>
-          <option value="active">Aktiv</option>
-          <option value="inactive">Inaktiv</option>
+          <option value="all">{t('employees.allStatus')}</option>
+          <option value="active">{t('employees.active')}</option>
+          <option value="inactive">{t('employees.inactive')}</option>
         </select>
       </div>
 
       {error ? <p className="form-error">{error}</p> : null}
-      {isLoading ? <p>Daten werden geladen…</p> : null}
+      {isLoading ? <p>{t('common.loading')}</p> : null}
       {!isLoading && filtered.length === 0 ? (
-        <p>Keine Mitarbeiter gefunden.</p>
+        <p>{t('employees.empty')}</p>
       ) : null}
 
       {!isLoading && filtered.length > 0 ? (
@@ -133,14 +137,14 @@ function EmployeeListPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Personalnummer</th>
-                <th>Name</th>
-                <th>E-Mail</th>
-                <th>Abteilung</th>
-                <th>Vorgesetzter</th>
-                <th>Rolle</th>
-                <th>Status</th>
-                <th>Aktionen</th>
+                <th>{t('employees.number')}</th>
+                <th>{t('employees.name')}</th>
+                <th>{t('employees.email')}</th>
+                <th>{t('common.department')}</th>
+                <th>{t('employees.manager')}</th>
+                <th>{t('employees.role')}</th>
+                <th>{t('common.status')}</th>
+                <th>{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -154,33 +158,35 @@ function EmployeeListPage() {
                     </td>
                     <td>{employee.email}</td>
                     <td>{employee.departmentName}</td>
-                    <td>{employee.managerName || '—'}</td>
-                    <td>{getRoleLabel(employee.role)}</td>
+                    <td>{employee.managerName || t('common.dash')}</td>
+                    <td>{getRoleLabel(employee.role, t)}</td>
                     <td>
                       <span
                         className={
                           employee.isActive ? 'badge badge-active' : 'badge badge-inactive'
                         }
                       >
-                        {employee.isActive ? 'Aktiv' : 'Inaktiv'}
+                        {employee.isActive
+                          ? t('employees.active')
+                          : t('employees.inactive')}
                       </span>
                     </td>
                     <td className="actions">
                       <Link to={`/admin/employees/${employee.id}/edit`}>
-                        Bearbeiten
+                        {t('common.edit')}
                       </Link>
                       <button
                         type="button"
                         className="link-button"
                         disabled={isSelf && employee.isActive}
                         title={
-                          isSelf
-                            ? 'Sie können Ihr eigenes Konto nicht deaktivieren.'
-                            : undefined
+                          isSelf ? t('employees.cannotDeactivateSelf') : undefined
                         }
                         onClick={() => handleStatusChange(employee)}
                       >
-                        {employee.isActive ? 'Deaktivieren' : 'Aktivieren'}
+                        {employee.isActive
+                          ? t('employees.deactivate')
+                          : t('employees.activate')}
                       </button>
                     </td>
                   </tr>

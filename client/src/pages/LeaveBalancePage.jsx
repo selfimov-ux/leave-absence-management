@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiRequest } from '../api'
 import AdminPage from '../components/AdminPage'
+import { useLanguage } from '../i18n/LanguageContext'
 import { getLeaveTypeLabel } from '../leaveLabels'
 
 function LeaveBalancePage() {
   const navigate = useNavigate()
+  const { t } = useLanguage()
   const [balances, setBalances] = useState([])
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(true)
@@ -31,26 +33,28 @@ function LeaveBalancePage() {
 
   return (
     <AdminPage
-      eyebrow="Urlaub"
-      title="Urlaubsübersicht"
-      lead="Jährlicher Anspruch, genommene Tage und verbleibendes Kontingent."
+      eyebrow={t('balances.eyebrow')}
+      title={t('balances.title')}
+      lead={t('balances.lead')}
     >
       {error ? <p className="form-error">{error}</p> : null}
-      {isLoading ? <p>Daten werden geladen…</p> : null}
+      {isLoading ? <p>{t('common.loading')}</p> : null}
       {!isLoading && balances.length === 0 ? (
-        <p>Es sind keine Urlaubskontingente hinterlegt.</p>
+        <p>{t('balances.empty')}</p>
       ) : null}
 
       <div className="cards">
         {balances.map((balance) => (
           <article className="card balance-card" key={balance.id}>
             <span className="card-label">{balance.calendarYear}</span>
-            <h3>{getLeaveTypeLabel(balance.leaveTypeName)}</h3>
-            <p>Jährlicher Anspruch: {balance.annualAllowance} Tage</p>
-            <p>Genommene Tage: {balance.usedDays}</p>
-            <p>Anpassungen: {balance.adjustedDays}</p>
+            <h3>{getLeaveTypeLabel(balance.leaveTypeName, t)}</h3>
+            <p>{t('balances.allowance', { count: balance.annualAllowance })}</p>
+            <p>{t('balances.used', { count: balance.usedDays })}</p>
+            <p>{t('balances.adjusted', { count: balance.adjustedDays })}</p>
             <p>
-              <strong>Verbleibende Tage: {balance.remainingDays}</strong>
+              <strong>
+                {t('balances.remaining', { count: balance.remainingDays })}
+              </strong>
             </p>
           </article>
         ))}
