@@ -3,7 +3,13 @@ require('dotenv').config()
 const express = require('express')
 const pool = require('./config/database')
 const authRoutes = require('./routes/auth')
+const departmentRoutes = require('./routes/departments')
+const leaveTypeRoutes = require('./routes/leaveTypes')
+const employeeRoutes = require('./routes/employees')
+const auditLogRoutes = require('./routes/auditLogs')
 const { authenticateToken, authorizeRoles } = require('./middleware/auth')
+const HttpError = require('./utils/httpError')
+const { uniqueConstraintMessage } = require('./utils/request')
 
 const app = express()
 const PORT = 5000
@@ -30,7 +36,10 @@ app.use((req, res, next) => {
     res.setHeader('Vary', 'Origin')
   }
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+  res.setHeader(
+    'Access-Control-Allow-Methods',
+    'GET, POST, PUT, PATCH, DELETE, OPTIONS'
+  )
 
   if (req.method === 'OPTIONS') {
     res.sendStatus(204)
@@ -65,22 +74,11 @@ app.get('/api/health/database', async (req, res, next) => {
   }
 })
 
-app.get('/api/departments', async (req, res, next) => {
-  try {
-    const result = await pool.query(
-      `SELECT id, name, description, manager_id
-         FROM departments
-        WHERE name IS DISTINCT FROM $1
-        ORDER BY name ASC`,
-      ['']
-    )
-    res.json(result.rows)
-  } catch (err) {
-    next(err)
-  }
-})
-
 app.use('/api/auth', authRoutes)
+app.use('/api/departments', departmentRoutes)
+app.use('/api/leave-types', leaveTypeRoutes)
+app.use('/api/employees', employeeRoutes)
+app.use('/api/audit-logs', auditLogRoutes)
 
 app.get(
   '/api/admin/test',
@@ -95,7 +93,31 @@ app.get(
 )
 
 app.use((err, req, res, next) => {
+  if (err instanceof HttpError) {
+    res.status(err.status).json({
+      status: 'error',
+      message: err.message,
+    })
+    return
+  }
+
   console.error('Server error:', err.code || 'NO_CODE', err.message)
+
+  if (err.code === '23505') {
+    res.status(409).json({
+      status: 'error',
+      message: uniqueConstraintMessage(err),
+    })
+    return
+  }
+
+  if (err.code === '23503') {
+    res.status(400).json({
+      status: 'error',
+      message: 'Die angegebene Referenz existiert nicht.',
+    })
+    return
+  }
 
   if (DATABASE_ERROR_CODES.has(err.code)) {
     res.status(503).json({

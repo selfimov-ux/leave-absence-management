@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import AppHeader from '../components/AppHeader'
 import {
   clearSession,
   getRoleLabel,
@@ -26,15 +27,23 @@ function getDashboardCards(role) {
     return [
       {
         title: 'Mitarbeiterverwaltung',
-        text: 'Mitarbeiterkonten und Stammdaten verwalten. Die Bearbeitung folgt in einer späteren Phase.',
+        text: 'Mitarbeiterkonten und Stammdaten anlegen und bearbeiten.',
+        to: '/admin/employees',
       },
       {
         title: 'Abteilungsverwaltung',
-        text: 'Abteilungen und Zuständigkeiten pflegen. Die Bearbeitung folgt in einer späteren Phase.',
+        text: 'Abteilungen und Zuständigkeiten pflegen.',
+        to: '/admin/departments',
+      },
+      {
+        title: 'Urlaubsartenverwaltung',
+        text: 'Urlaubsarten anlegen, bearbeiten und aktiv oder inaktiv setzen.',
+        to: '/admin/leave-types',
       },
       {
         title: 'Berichte',
-        text: 'Übersichten zu Urlaub und Abwesenheiten erstellen. Die Bearbeitung folgt in einer späteren Phase.',
+        text: 'Übersichten zu Urlaub und Abwesenheiten. Die Auswertung folgt in einer späteren Phase.',
+        to: '/admin/reports',
       },
     ]
   }
@@ -112,11 +121,6 @@ function DashboardPage() {
     }
   }, [navigate])
 
-  function handleLogout() {
-    clearSession()
-    navigate('/', { replace: true })
-  }
-
   if (!user) {
     return null
   }
@@ -126,46 +130,45 @@ function DashboardPage() {
 
   return (
     <div className="page">
-      <header className="header">
-        <div className="header-inner">
-          <Link to="/" className="brand brand-link">
-            <span className="brand-mark" aria-hidden="true">
-              UA
-            </span>
-            <span className="brand-name">Urlaubsverwaltung</span>
-          </Link>
-          <div className="header-user">
-            <div className="header-user-text">
-              <strong>{fullName}</strong>
-              <span>{roleLabel}</span>
-            </div>
-            <button type="button" className="btn-login" onClick={handleLogout}>
-              Abmelden
-            </button>
-          </div>
-        </div>
-      </header>
-
+      <AppHeader />
       <main>
         <section className="hero dashboard-hero">
           <p className="eyebrow">Übersicht</p>
           <h1>Willkommen, {fullName}</h1>
           <p className="lead">
-            Angemeldet als {roleLabel}. Die folgenden Bereiche sind Platzhalter
-            für spätere Funktionen.
+            Angemeldet als {roleLabel}.
+            {user.role === 'ADMINISTRATOR'
+              ? ' Wählen Sie einen Verwaltungsbereich.'
+              : ' Die folgenden Bereiche sind Platzhalter für spätere Funktionen.'}
           </p>
           {statusMessage ? <p className="status-note">{statusMessage}</p> : null}
         </section>
 
         <section className="roles" aria-label="Dashboardbereiche">
           <div className="cards">
-            {cards.map((card) => (
-              <article className="card" key={card.title}>
-                <span className="card-label">Bereich</span>
-                <h3>{card.title}</h3>
-                <p>{card.text}</p>
-              </article>
-            ))}
+            {cards.map((card) => {
+              const content = (
+                <>
+                  <span className="card-label">Bereich</span>
+                  <h3>{card.title}</h3>
+                  <p>{card.text}</p>
+                </>
+              )
+
+              if (card.to) {
+                return (
+                  <Link key={card.title} to={card.to} className="card card-link">
+                    {content}
+                  </Link>
+                )
+              }
+
+              return (
+                <article className="card" key={card.title}>
+                  {content}
+                </article>
+              )
+            })}
           </div>
         </section>
       </main>

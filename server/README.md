@@ -79,7 +79,7 @@ Database health:
 http://localhost:5000/api/health/database
 ```
 
-Departments:
+Departments (authenticated):
 
 ```
 http://localhost:5000/api/departments
@@ -101,6 +101,64 @@ Administrator test endpoint:
 
 ```bash
 curl http://localhost:5000/api/admin/test -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+## Administrator management
+
+Replace `YOUR_TOKEN` with an administrator JWT. Never commit a real token.
+
+List employees:
+
+```bash
+curl http://localhost:5000/api/employees -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+Create a department:
+
+```bash
+curl -X POST http://localhost:5000/api/departments -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" -d "{\"name\":\"Operations\",\"description\":\"Internal operations\",\"managerId\":null}"
+```
+
+Update a department:
+
+```bash
+curl -X PUT http://localhost:5000/api/departments/1 -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" -d "{\"name\":\"Human Resources\",\"description\":\"Personnel administration\",\"managerId\":2}"
+```
+
+Delete a department (fails while employees are assigned):
+
+```bash
+curl -X DELETE http://localhost:5000/api/departments/2 -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+Create a leave type:
+
+```bash
+curl -X POST http://localhost:5000/api/leave-types -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" -d "{\"name\":\"Parental Leave\",\"description\":\"Unpaid parental leave\",\"isActive\":true}"
+```
+
+Change leave-type status:
+
+```bash
+curl -X PATCH http://localhost:5000/api/leave-types/1/status -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" -d "{\"isActive\":false}"
+```
+
+Create an employee (user and employee rows in one transaction):
+
+```bash
+curl -X POST http://localhost:5000/api/employees -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" -d "{\"employeeNumber\":\"EMP-011\",\"firstName\":\"Nora\",\"lastName\":\"Lehmann\",\"email\":\"nora.lehmann@example.com\",\"hireDate\":\"2026-01-12\",\"departmentId\":2,\"managerId\":3,\"username\":\"nlehmann\",\"role\":\"EMPLOYEE\",\"password\":\"TempPassword123!\"}"
+```
+
+Deactivate an employee:
+
+```bash
+curl -X PATCH http://localhost:5000/api/employees/4/status -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" -d "{\"isActive\":false}"
+```
+
+Recent audit log:
+
+```bash
+curl http://localhost:5000/api/audit-logs -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 Authorization header format:
@@ -128,5 +186,4 @@ Other seeded usernames (`jhoffmann`, `drichter`, `lkoch`, `mwagner`, `sbecker`, 
 curl http://localhost:5000/
 curl http://localhost:5000/api/health
 curl http://localhost:5000/api/health/database
-curl http://localhost:5000/api/departments
 ```

@@ -15,7 +15,21 @@ Web application for the bachelor thesis: employees can request leave and report 
 | GET | `/` | Public. API title. |
 | GET | `/api/health` | Public. Process health. |
 | GET | `/api/health/database` | Public. PostgreSQL check. |
-| GET | `/api/departments` | Public. Department list. |
+| GET | `/api/departments` | JWT required. Department list. |
+| GET | `/api/departments/:id` | JWT + `ADMINISTRATOR`. |
+| POST | `/api/departments` | JWT + `ADMINISTRATOR`. |
+| PUT | `/api/departments/:id` | JWT + `ADMINISTRATOR`. |
+| DELETE | `/api/departments/:id` | JWT + `ADMINISTRATOR`. |
+| GET | `/api/leave-types` | JWT required. |
+| POST | `/api/leave-types` | JWT + `ADMINISTRATOR`. |
+| PUT | `/api/leave-types/:id` | JWT + `ADMINISTRATOR`. |
+| PATCH | `/api/leave-types/:id/status` | JWT + `ADMINISTRATOR`. |
+| GET | `/api/employees` | JWT + `ADMINISTRATOR`. |
+| GET | `/api/employees/:id` | JWT + `ADMINISTRATOR`. |
+| POST | `/api/employees` | JWT + `ADMINISTRATOR`. |
+| PUT | `/api/employees/:id` | JWT + `ADMINISTRATOR`. |
+| PATCH | `/api/employees/:id/status` | JWT + `ADMINISTRATOR`. |
+| GET | `/api/audit-logs` | JWT + `ADMINISTRATOR`. |
 | POST | `/api/auth/login` | Public. Username and password. |
 | GET | `/api/auth/me` | JWT required. Current user. |
 | GET | `/api/admin/test` | JWT + role `ADMINISTRATOR`. |
