@@ -57,6 +57,7 @@
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .btn-login:hover {
@@ -67,6 +68,101 @@
 .btn-login:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+.brand-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-user-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.25;
+  font-size: 0.85rem;
+}
+
+.header-user-text strong {
+  font-size: 0.95rem;
+}
+
+.auth-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 28rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--accent);
+  border-radius: 10px;
+  padding: 1.75rem 1.5rem 1.6rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.auth-card h1 {
+  margin: 0 0 0.75rem;
+  font-size: 1.75rem;
+  color: var(--text-h);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-top: 1.25rem;
+}
+
+.auth-form label {
+  font-weight: 600;
+  color: var(--text-h);
+  font-size: 0.95rem;
+}
+
+.auth-form input {
+  margin-bottom: 0.7rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: inherit;
+  color: var(--text-h);
+  background: #fff;
+}
+
+.auth-form input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.auth-form .btn-primary {
+  margin-top: 0.35rem;
+  width: 100%;
+}
+
+.form-error {
+  margin: 0 0 0.5rem;
+  color: #b42318;
+  font-size: 0.95rem;
+}
+
+.status-note {
+  margin-top: 0.75rem;
+  color: var(--text);
+}
+
+.dashboard-hero h1 {
+  max-width: none;
 }
 
 main {
@@ -107,6 +203,10 @@ main {
 }
 
 .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
   background: var(--accent);
   color: #fff;
   border: none;
@@ -121,6 +221,11 @@ main {
 
 .btn-primary:hover {
   background: var(--accent-hover);
+}
+
+.btn-primary:disabled {
+  opacity: 0.7;
+  cursor: wait;
 }
 
 .btn-primary:focus-visible {
@@ -208,5 +313,10 @@ main {
 
   .hero h1 {
     max-width: none;
+  }
+
+  .header-user {
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
 }
