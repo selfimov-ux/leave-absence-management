@@ -32,6 +32,12 @@ Web application for the bachelor thesis: employees can request leave and report 
 | GET | `/api/audit-logs` | JWT + `ADMINISTRATOR`. |
 | POST | `/api/auth/login` | Public. Username and password. |
 | GET | `/api/auth/me` | JWT required. Current user. |
-| GET | `/api/admin/test` | JWT + role `ADMINISTRATOR`. |
+| GET | `/api/leave-requests/me` | JWT. Own leave requests. |
+| POST | `/api/leave-requests` | JWT. Create own PENDING request. |
+| PATCH | `/api/leave-requests/:id/cancel` | JWT. Cancel own PENDING request. |
+| GET | `/api/leave-balances/me` | JWT. Own leave balances. |
+| GET | `/api/manager/leave-requests` | JWT + `MANAGER`. Department queue. |
+| PATCH | `/api/manager/leave-requests/:id/approve` | JWT + `MANAGER`. |
+| PATCH | `/api/manager/leave-requests/:id/reject` | JWT + `MANAGER`. |
 
 Setup, environment variables, and test commands are documented in `/server/README.md`. Authentication details are in `/docs/authentication-and-roles.md`.

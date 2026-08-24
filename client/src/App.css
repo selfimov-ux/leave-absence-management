@@ -150,10 +150,18 @@
   width: 100%;
 }
 
-.form-error {
-  margin: 0 0 0.5rem;
-  color: #b42318;
-  font-size: 0.95rem;
+.form-success {
+  margin: 0 0 0.75rem;
+  color: #166534;
+  font-weight: 600;
+}
+
+.toolbar-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.balance-card p {
+  margin: 0 0 0.35rem;
 }
 
 .status-note {
@@ -520,6 +528,7 @@ main {
   }
 
   .toolbar,
+  .toolbar-4,
   .form-row {
     grid-template-columns: 1fr;
   }

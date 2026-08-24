@@ -14,7 +14,13 @@ function getDashboardCards(role) {
     return [
       {
         title: 'Anträge meiner Abteilung',
-        text: 'Urlaubsanträge der eigenen Abteilung prüfen. Die Bearbeitung folgt in einer späteren Phase.',
+        text: 'Urlaubsanträge der eigenen Abteilung prüfen und entscheiden.',
+        to: '/manager/leave-requests',
+      },
+      {
+        title: 'Meine Urlaubsanträge',
+        text: 'Eigene Urlaubsanträge stellen und einsehen.',
+        to: '/leave-requests',
       },
       {
         title: 'Abwesenheiten der Abteilung',
@@ -51,7 +57,8 @@ function getDashboardCards(role) {
   return [
     {
       title: 'Meine Urlaubsanträge',
-      text: 'Eigene Urlaubsanträge einreichen und einsehen. Die Bearbeitung folgt in einer späteren Phase.',
+      text: 'Eigene Urlaubsanträge einreichen, einsehen und stornieren.',
+      to: '/leave-requests',
     },
     {
       title: 'Meine Krankmeldungen',
@@ -59,7 +66,8 @@ function getDashboardCards(role) {
     },
     {
       title: 'Verbleibender Urlaub',
-      text: 'Verbleibendes Urlaubsguthaben anzeigen. Die Bearbeitung folgt in einer späteren Phase.',
+      text: 'Verbleibendes Urlaubsguthaben und Kontingente anzeigen.',
+      to: '/leave-balances',
     },
   ]
 }

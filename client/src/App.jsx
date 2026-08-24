@@ -6,8 +6,13 @@ import DepartmentPage from './pages/DepartmentPage'
 import EmployeeFormPage from './pages/EmployeeFormPage'
 import EmployeeListPage from './pages/EmployeeListPage'
 import HomePage from './pages/HomePage'
+import LeaveBalancePage from './pages/LeaveBalancePage'
+import LeaveRequestListPage from './pages/LeaveRequestListPage'
+import LeaveRequestNewPage from './pages/LeaveRequestNewPage'
 import LeaveTypePage from './pages/LeaveTypePage'
 import LoginPage from './pages/LoginPage'
+import ManagerLeaveRequestPage from './pages/ManagerLeaveRequestPage'
+import ManagerRoute from './components/ManagerRoute'
 import ReportsPage from './pages/ReportsPage'
 import './App.css'
 
@@ -23,6 +28,38 @@ function App() {
             <ProtectedRoute>
               <DashboardPage />
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/leave-requests"
+          element={
+            <ProtectedRoute>
+              <LeaveRequestListPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/leave-requests/new"
+          element={
+            <ProtectedRoute>
+              <LeaveRequestNewPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/leave-balances"
+          element={
+            <ProtectedRoute>
+              <LeaveBalancePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/manager/leave-requests"
+          element={
+            <ManagerRoute>
+              <ManagerLeaveRequestPage />
+            </ManagerRoute>
           }
         />
         <Route

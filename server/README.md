@@ -161,6 +161,46 @@ Recent audit log:
 curl http://localhost:5000/api/audit-logs -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
+## Leave requests
+
+Own requests:
+
+```bash
+curl http://localhost:5000/api/leave-requests/me -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+Own balances:
+
+```bash
+curl http://localhost:5000/api/leave-balances/me -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+Create a request (employee token):
+
+```bash
+curl -X POST http://localhost:5000/api/leave-requests -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" -d "{\"leaveTypeId\":1,\"startDate\":\"2026-09-21\",\"endDate\":\"2026-09-23\",\"reason\":\"Familienurlaub\"}"
+```
+
+Cancel a pending request:
+
+```bash
+curl -X PATCH http://localhost:5000/api/leave-requests/1/cancel -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+Manager queue:
+
+```bash
+curl http://localhost:5000/api/manager/leave-requests -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+Approve / reject (manager token):
+
+```bash
+curl -X PATCH http://localhost:5000/api/manager/leave-requests/1/approve -H "Authorization: Bearer YOUR_TOKEN"
+curl -X PATCH http://localhost:5000/api/manager/leave-requests/1/reject -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" -d "{\"rejectionReason\":\"Personaldeckung nicht ausreichend\"}"
+```
+
+
 Authorization header format:
 
 ```
