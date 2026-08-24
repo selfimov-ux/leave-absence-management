@@ -4,27 +4,22 @@ const crypto = require('crypto')
 const multer = require('multer')
 const HttpError = require('./httpError')
 
-const UPLOAD_DIR = path.join(__dirname, '..', 'uploads', 'sickness')
+const UPLOAD_DIR = path.join(__dirname, '..', 'uploads', 'sickness-certificates')
 const MAX_FILE_SIZE = 5 * 1024 * 1024
-const STORED_NAME_PATTERN = /^[0-9]+-[a-f0-9]+\.(pdf|jpg|png|webp|gif)$/
-
-const MIME_TO_EXTENSION = {
-  'application/pdf': '.pdf',
-  'image/jpeg': '.jpg',
-  'image/png': '.png',
-  'image/webp': '.webp',
-  'image/gif': '.gif',
-}
-
-const EXTENSION_TO_MIME = {
-  '.pdf': 'application/pdf',
-  '.jpg': 'image/jpeg',
-  '.png': 'image/png',
-  '.webp': 'image/webp',
-  '.gif': 'image/gif',
-}
+const STORED_NAME_PATTERN = /^[a-f0-9]{32}\.pdf$/
+const INVALID_TYPE_MESSAGE = 'Nur PDF-Dateien sind erlaubt.'
+const MISSING_FILE_MESSAGE = 'Bitte eine PDF-Datei hochladen.'
+const FILE_TOO_LARGE_MESSAGE = 'Die Datei darf höchstens 5 MB groß sein.'
 
 fs.mkdirSync(UPLOAD_DIR, { recursive: true })
+
+function isPdfUpload(file) {
+  if (!file) {
+    return false
+  }
+  const originalName = path.basename(file.originalname || '').toLowerCase()
+  return file.mimetype === 'application/pdf' && originalName.endsWith('.pdf')
+}
 
 function isStoredCertificateName(value) {
   return typeof value === 'string' && STORED_NAME_PATTERN.test(value)
@@ -34,7 +29,12 @@ function storedFilePath(filename) {
   if (!isStoredCertificateName(filename)) {
     return null
   }
-  return path.join(UPLOAD_DIR, filename)
+  const resolved = path.resolve(UPLOAD_DIR, filename)
+  const relative = path.relative(path.resolve(UPLOAD_DIR), resolved)
+  if (relative.startsWith('..') || path.isAbsolute(relative)) {
+    return null
+  }
+  return resolved
 }
 
 function removeStoredCertificate(filename) {
@@ -66,29 +66,29 @@ function removeUploadedTemp(file) {
 
 const diskStorage = multer.diskStorage({
   destination: UPLOAD_DIR,
-  filename: (_req, file, callback) => {
-    const extension = MIME_TO_EXTENSION[file.mimetype]
-    const name = `${Date.now()}-${crypto.randomBytes(6).toString('hex')}${extension}`
-    callback(null, name)
+  filename: (_req, _file, callback) => {
+    callback(null, `${crypto.randomBytes(16).toString('hex')}.pdf`)
   },
 })
 
 const upload = multer({
   storage: diskStorage,
-  limits: { fileSize: MAX_FILE_SIZE },
+  limits: { fileSize: MAX_FILE_SIZE, files: 1 },
   fileFilter: (_req, file, callback) => {
-    if (!MIME_TO_EXTENSION[file.mimetype]) {
-      callback(
-        new HttpError(
-          400,
-          'Nur PDF- oder Bilddateien (JPEG, PNG, WebP, GIF) sind erlaubt.'
-        )
-      )
+    if (!isPdfUpload(file)) {
+      callback(new HttpError(400, INVALID_TYPE_MESSAGE))
       return
     }
     callback(null, true)
   },
 })
+
+function mapMulterError(err) {
+  if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
+    return new HttpError(400, FILE_TOO_LARGE_MESSAGE)
+  }
+  return err
+}
 
 function optionalCertificateUpload(req, res, next) {
   const contentType = req.headers['content-type'] || ''
@@ -98,20 +98,32 @@ function optionalCertificateUpload(req, res, next) {
   }
 
   upload.single('certificate')(req, res, (err) => {
-    if (!err) {
-      next()
+    if (err) {
+      next(mapMulterError(err))
       return
     }
-    if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
-      next(new HttpError(400, 'Die Datei darf höchstens 5 MB groß sein.'))
-      return
-    }
-    next(err)
+    next()
   })
 }
 
-function mimeForStoredName(filename) {
-  return EXTENSION_TO_MIME[path.extname(filename)] || 'application/octet-stream'
+function requireCertificateUpload(req, res, next) {
+  const contentType = req.headers['content-type'] || ''
+  if (!contentType.includes('multipart/form-data')) {
+    next(new HttpError(400, MISSING_FILE_MESSAGE))
+    return
+  }
+
+  upload.single('certificate')(req, res, (err) => {
+    if (err) {
+      next(mapMulterError(err))
+      return
+    }
+    if (!req.file) {
+      next(new HttpError(400, MISSING_FILE_MESSAGE))
+      return
+    }
+    next()
+  })
 }
 
 module.exports = {
@@ -120,5 +132,5 @@ module.exports = {
   removeStoredCertificate,
   removeUploadedTemp,
   optionalCertificateUpload,
-  mimeForStoredName,
+  requireCertificateUpload,
 }

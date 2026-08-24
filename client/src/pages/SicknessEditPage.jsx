@@ -59,6 +59,15 @@ function SicknessEditPage() {
       return
     }
 
+    if (certificate && certificate.type !== 'application/pdf') {
+      setError('Nur PDF-Dateien sind erlaubt.')
+      return
+    }
+    if (certificate && certificate.size > 5 * 1024 * 1024) {
+      setError('Die Datei darf höchstens 5 MB groß sein.')
+      return
+    }
+
     setIsSaving(true)
     setError('')
     try {
@@ -112,12 +121,13 @@ function SicknessEditPage() {
           <input
             id="certificate"
             type="file"
-            accept="application/pdf,image/jpeg,image/png,image/webp,image/gif,.pdf,.jpg,.jpeg,.png,.webp,.gif"
+            accept="application/pdf,.pdf"
             onChange={(event) => setCertificate(event.target.files[0] || null)}
           />
           <p className="field-hint">
-            Eine neue Datei ersetzt die bisherige Bescheinigung. Ohne Auswahl
-            bleibt die vorhandene Datei erhalten.
+            Eine neue PDF-Datei ersetzt die bisherige Bescheinigung. Ohne
+            Auswahl bleibt die vorhandene Datei erhalten. Nur Sie und die
+            Administration können die Datei öffnen.
           </p>
 
           <label htmlFor="employeeNote">Bemerkung</label>

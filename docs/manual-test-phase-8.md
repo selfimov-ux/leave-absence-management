@@ -60,3 +60,39 @@ Validate one period, try to validate another overlapping period for the same emp
 ## 13. Audit log
 
 `GET /api/audit-logs` as `aschmidt` contains report, update, document request, validate, reject, and close actions.
+
+## 14. PDF upload — valid fictional file
+
+Create a local dummy PDF (not real medical data), e.g. empty file saved as `fiktive-bescheinigung.pdf` from a PDF printer or a one-page text PDF. As `tbauer`, attach it on `/sickness-absences/new` or via:
+
+`POST /api/sickness-absences/:id/certificate` with JWT and `-F certificate=@fiktive-bescheinigung.pdf;type=application/pdf`.
+
+Expected: `hasCertificateFile` true in JSON, no disk path and no original filename in the response. Employee list shows **Bescheinigung anzeigen**.
+
+## 15. PDF upload — invalid type
+
+Upload a `.png` or `.txt` as `certificate`. Expected: German message that only PDF files are allowed.
+
+## 16. PDF upload — missing file
+
+`POST /api/sickness-absences/:id/certificate` with employee JWT and no `certificate` part. Expected: German message asking to upload a PDF.
+
+## 17. PDF upload — oversized file
+
+Upload a PDF larger than 5 MB. Expected: German message that the file may be at most 5 MB.
+
+## 18. PDF upload — employee ownership
+
+As `jhoffmann`, `POST /api/sickness-absences/:id/certificate` for `tbauer`'s record. Expected: 403 German unauthorized message. Same for `GET .../certificate`.
+
+## 19. PDF download — administrator access
+
+As `aschmidt`, `GET /api/sickness-absences/:id/certificate` for the employee record. Expected: 200, `Content-Type: application/pdf`. Admin UI **Bescheinigung anzeigen** opens the PDF.
+
+## 20. PDF download — manager denial
+
+As `eweber`, `GET /api/sickness-absences/:id/certificate` for `tbauer`. Expected: 403. Manager UI has no working preview/download of the file.
+
+## 21. Git exclusion
+
+`server/.gitignore` contains `uploads/sickness-certificates/*`. After an upload, `git status` must not list the generated PDF. Only `.gitkeep` is tracked.

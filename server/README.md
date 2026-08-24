@@ -208,23 +208,38 @@ Own list:
 curl http://localhost:5000/api/sickness-absences/me -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-Report (optional certificate file as `certificate`):
+Report (optional fictional PDF as `certificate`):
 
 ```bash
-curl -X POST http://localhost:5000/api/sickness-absences -H "Authorization: Bearer YOUR_TOKEN" -F "absenceType=SICK_LEAVE" -F "startDate=2026-08-24" -F "endDate=" -F "employeeNote=Fieber" -F "certificate=@attest.pdf;type=application/pdf"
+curl -X POST http://localhost:5000/api/sickness-absences -H "Authorization: Bearer YOUR_TOKEN" -F "absenceType=SICK_LEAVE" -F "startDate=2026-08-24" -F "employeeNote=Fiktive Testdaten" -F "certificate=@fiktive-bescheinigung.pdf;type=application/pdf"
 ```
 
-Employee edit (keep existing file unless a new `certificate` is sent):
+Upload or replace the PDF on an existing own record (`REPORTED` or `DOCUMENT_PENDING`):
 
 ```bash
-curl -X PATCH http://localhost:5000/api/sickness-absences/1 -H "Authorization: Bearer YOUR_TOKEN" -F "endDate=2026-08-26" -F "employeeNote=Attest nachgereicht" -F "certificate=@attest.jpg;type=image/jpeg"
+curl -X POST http://localhost:5000/api/sickness-absences/1/certificate -H "Authorization: Bearer YOUR_TOKEN" -F "certificate=@fiktive-bescheinigung.pdf;type=application/pdf"
 ```
 
-View certificate (employee, department manager, or administrator):
+Employee edit (optional new PDF via field `certificate`):
+
+```bash
+curl -X PATCH http://localhost:5000/api/sickness-absences/1 -H "Authorization: Bearer YOUR_TOKEN" -F "endDate=2026-08-26" -F "employeeNote=Attest nachgereicht" -F "certificate=@fiktive-bescheinigung.pdf;type=application/pdf"
+```
+
+Download certificate (owning employee or administrator; JWT required). Managers receive 403.
 
 ```bash
 curl -O -J http://localhost:5000/api/sickness-absences/1/certificate -H "Authorization: Bearer YOUR_TOKEN"
 ```
+
+### Certificate upload restrictions
+
+- Exactly one PDF per sickness absence (`certificate` field).
+- Only `.pdf` and `application/pdf`. Maximum size 5 MB.
+- German error messages for missing file, invalid type, oversized file, and unauthorized access.
+- Files are stored only on this machine under `server/uploads/sickness-certificates/`. The folder is gitignored and is **not** mounted with `express.static`.
+- The database stores a generated 32-character hex filename plus `.pdf` in `certificate_reference`, never the original name and never a full path.
+- This is local thesis storage only. There is no cloud bucket, virus scan, or eAU connection.
 
 Manager department list:
 

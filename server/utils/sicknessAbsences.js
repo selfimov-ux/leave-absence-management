@@ -112,22 +112,6 @@ async function assertCanViewCertificate(queryable, auth, recordId) {
     return row
   }
 
-  if (auth.role === 'MANAGER' && auth.employeeId) {
-    const access = await queryable.query(
-      `SELECT 1
-         FROM employees e
-         INNER JOIN departments d ON d.id = e.department_id
-        WHERE e.id = $1
-          AND d.manager_id = $2
-          AND e.id <> $2
-        LIMIT 1`,
-      [row.employee_id, auth.employeeId]
-    )
-    if (access.rowCount) {
-      return row
-    }
-  }
-
   throw new HttpError(
     403,
     'Sie haben keine Berechtigung, diese Bescheinigung zu sehen.'

@@ -23,6 +23,14 @@ function SicknessNewPage() {
       setError('Das Endedatum darf nicht vor dem Beginndatum liegen.')
       return
     }
+    if (certificate && certificate.type !== 'application/pdf') {
+      setError('Nur PDF-Dateien sind erlaubt.')
+      return
+    }
+    if (certificate && certificate.size > 5 * 1024 * 1024) {
+      setError('Die Datei darf höchstens 5 MB groß sein.')
+      return
+    }
 
     setIsSaving(true)
     setError('')
@@ -87,19 +95,19 @@ function SicknessNewPage() {
         <p className="field-hint">
           Das Endedatum kann später ergänzt werden, solange die Meldung noch
           nicht validiert ist. Krankmeldungen reduzieren den Jahresurlaub nicht.
-          Optional können Sie ein PDF oder ein Bild als Bescheinigung anhängen.
+          Optional können Sie genau eine PDF-Datei als Bescheinigung anhängen.
         </p>
 
         <label htmlFor="certificate">Bescheinigungsreferenz</label>
         <input
           id="certificate"
           type="file"
-          accept="application/pdf,image/jpeg,image/png,image/webp,image/gif,.pdf,.jpg,.jpeg,.png,.webp,.gif"
+          accept="application/pdf,.pdf"
           onChange={(event) => setCertificate(event.target.files[0] || null)}
         />
         <p className="field-hint">
-          Erlaubt sind PDF- oder Bilddateien bis 5 MB. Die Datei ist für Sie,
-          Ihre Führungskraft und die Administration sichtbar.
+          Erlaubt ist genau eine PDF-Datei bis 5 MB. Die Datei ist nur für Sie
+          und die Administration sichtbar, nicht für Führungskräfte.
         </p>
 
         <label htmlFor="employeeNote">Bemerkung</label>

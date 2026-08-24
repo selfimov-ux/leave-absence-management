@@ -1,5 +1,4 @@
 const fs = require('fs')
-const path = require('path')
 const express = require('express')
 const pool = require('../config/database')
 const { authenticateToken } = require('../middleware/auth')
@@ -8,11 +7,11 @@ const { parseId, asTrimmedString } = require('../utils/request')
 const { isIsoDate } = require('../utils/workingDays')
 const {
   optionalCertificateUpload,
+  requireCertificateUpload,
   isStoredCertificateName,
   storedFilePath,
   removeStoredCertificate,
   removeUploadedTemp,
-  mimeForStoredName,
 } = require('../utils/certificateFiles')
 const {
   SELECT_SICKNESS,
@@ -63,6 +62,24 @@ function readTextCertificate(body) {
   return certificateReference
 }
 
+async function insertCertificateAudit(client, userId, entityId, isReplacement) {
+  await client.query(
+    `INSERT INTO audit_logs (user_id, action, entity_type, entity_id, description)
+     VALUES ($1, $2, $3, $4, $5)`,
+    [
+      userId,
+      isReplacement
+        ? 'REPLACE_SICKNESS_CERTIFICATE'
+        : 'UPLOAD_SICKNESS_CERTIFICATE',
+      'sickness_absences',
+      entityId,
+      isReplacement
+        ? 'Sickness certificate replaced'
+        : 'Sickness certificate uploaded',
+    ]
+  )
+}
+
 router.get('/me', authenticateToken, async (req, res, next) => {
   try {
     const employeeId = req.auth.employeeId
@@ -105,16 +122,90 @@ router.get('/:id/certificate', authenticateToken, async (req, res, next) => {
       throw new HttpError(404, 'Die Bescheinigungsdatei wurde nicht gefunden.')
     }
 
-    res.setHeader('Content-Type', mimeForStoredName(row.certificate_reference))
-    res.setHeader(
-      'Content-Disposition',
-      `inline; filename="bescheinigung${path.extname(row.certificate_reference)}"`
-    )
+    res.setHeader('Content-Type', 'application/pdf')
+    res.setHeader('Content-Disposition', 'inline; filename="bescheinigung.pdf"')
     fs.createReadStream(filePath).pipe(res)
   } catch (err) {
     next(err)
   }
 })
+
+router.post(
+  '/:id/certificate',
+  authenticateToken,
+  requireCertificateUpload,
+  async (req, res, next) => {
+    const client = await pool.connect()
+    let previousStoredName = null
+
+    try {
+      const employeeId = req.auth.employeeId
+      if (!employeeId) {
+        throw new HttpError(400, 'Dem Konto ist kein Mitarbeiter zugeordnet.')
+      }
+
+      const id = parseId(req.params.id)
+      if (!id) {
+        throw new HttpError(400, 'Die ID der Krankmeldung ist ungültig.')
+      }
+
+      await client.query('BEGIN')
+
+      const locked = await client.query(
+        `SELECT id, employee_id, status, certificate_reference
+           FROM sickness_absences
+          WHERE id = $1
+          FOR UPDATE`,
+        [id]
+      )
+      if (!locked.rowCount) {
+        throw new HttpError(404, 'Die Krankmeldung wurde nicht gefunden.')
+      }
+
+      const record = locked.rows[0]
+      if (record.employee_id !== employeeId) {
+        throw new HttpError(
+          403,
+          'Sie können nur eine Bescheinigung für eigene Krankmeldungen hochladen.'
+        )
+      }
+      if (!EDITABLE_STATUSES.includes(record.status)) {
+        throw new HttpError(
+          409,
+          'Diese Krankmeldung kann in diesem Status nicht mehr bearbeitet werden.'
+        )
+      }
+
+      const isReplacement = isStoredCertificateName(record.certificate_reference)
+      previousStoredName = isReplacement ? record.certificate_reference : null
+
+      await client.query(
+        `UPDATE sickness_absences
+            SET certificate_reference = $1,
+                updated_at = CURRENT_TIMESTAMP
+          WHERE id = $2`,
+        [req.file.filename, id]
+      )
+      await insertCertificateAudit(client, req.auth.userId, id, isReplacement)
+
+      await client.query('COMMIT')
+      if (previousStoredName && previousStoredName !== req.file.filename) {
+        removeStoredCertificate(previousStoredName)
+      }
+      res.json(mapSickness(await getSicknessById(pool, id)))
+    } catch (err) {
+      try {
+        await client.query('ROLLBACK')
+      } catch {
+        // Ignore rollback errors.
+      }
+      removeUploadedTemp(req.file)
+      next(err)
+    } finally {
+      client.release()
+    }
+  }
+)
 
 router.post(
   '/',
@@ -187,6 +278,9 @@ router.post(
           `Sickness absence reported (${absenceType})`,
         ]
       )
+      if (req.file) {
+        await insertCertificateAudit(client, req.auth.userId, id, false)
+      }
 
       await client.query('COMMIT')
       res.status(201).json(mapSickness(await getSicknessById(pool, id)))
@@ -267,8 +361,10 @@ router.patch(
       }
 
       let certificateReference = record.certificate_reference
+      let isReplacement = false
       if (req.file) {
-        previousStoredName = isStoredCertificateName(record.certificate_reference)
+        isReplacement = isStoredCertificateName(record.certificate_reference)
+        previousStoredName = isReplacement
           ? record.certificate_reference
           : null
         certificateReference = req.file.filename
@@ -300,6 +396,14 @@ router.patch(
           'Sickness absence updated by the employee',
         ]
       )
+      if (req.file) {
+        await insertCertificateAudit(
+          client,
+          req.auth.userId,
+          id,
+          isReplacement
+        )
+      }
 
       await client.query('COMMIT')
       if (previousStoredName && previousStoredName !== req.file?.filename) {

@@ -40,8 +40,10 @@ Web application for the bachelor thesis: employees can request leave and report 
 | PATCH | `/api/manager/leave-requests/:id/approve` | JWT + `MANAGER`. |
 | PATCH | `/api/manager/leave-requests/:id/reject` | JWT + `MANAGER`. |
 | GET | `/api/sickness-absences/me` | JWT. Own sickness absences. |
-| POST | `/api/sickness-absences` | JWT. Report own sickness. |
-| PATCH | `/api/sickness-absences/:id` | JWT. Edit own open sickness. |
+| POST | `/api/sickness-absences` | JWT. Report own sickness. Optional PDF field `certificate`. |
+| POST | `/api/sickness-absences/:id/certificate` | JWT. Upload/replace own PDF. |
+| PATCH | `/api/sickness-absences/:id` | JWT. Edit own open sickness. Optional PDF field `certificate`. |
+| GET | `/api/sickness-absences/:id/certificate` | JWT. Owner or administrator downloads the PDF. |
 | GET | `/api/manager/sickness-absences` | JWT + `MANAGER`. Read-only. |
 | GET | `/api/admin/sickness-absences` | JWT + `ADMINISTRATOR`. |
 | PATCH | `/api/admin/sickness-absences/:id/document-pending` | JWT + `ADMINISTRATOR`. |

@@ -32,7 +32,7 @@ Stores planned time-off applications: period, requested days, status, reason, re
 
 ### `sickness_absences`
 
-Stores health-related absences (`SICK_LEAVE` or `CARE_LEAVE`) with their own status workflow. The end date may be empty while the absence is still open. Optional `certificate_reference` holds either a short text note or a local uploaded filename (PDF/image under `server/uploads/sickness/`). Employee note, administrator note, validating user, and validation timestamp support HR follow-up. These rows never reduce annual leave.
+Stores health-related absences (`SICK_LEAVE` or `CARE_LEAVE`) with their own status workflow. The end date may be empty while the absence is still open. Optional `certificate_reference` holds a generated local PDF filename under `server/uploads/sickness-certificates/`. Employee note, administrator note, validating user, and validation timestamp support HR follow-up. These rows never reduce annual leave.
 
 ### `audit_logs`
 

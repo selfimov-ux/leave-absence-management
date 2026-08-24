@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiRequest } from '../api'
 import AdminPage from '../components/AdminPage'
-import CertificateCell from '../components/CertificateCell'
 import {
   formatDate,
   getAbsenceTypeLabel,
@@ -58,7 +57,8 @@ function ManagerSicknessPage() {
     >
       <p className="field-hint">
         Diese Übersicht ist nur lesend. Es gibt keine Aktionen zum Validieren,
-        Ablehnen oder Abschließen.
+        Ablehnen oder Abschließen. Bescheinigungsdateien sind für
+        Führungskräfte nicht einsehbar.
       </p>
       <div className="toolbar toolbar-4">
         <select value={status} onChange={(event) => setStatus(event.target.value)}>
@@ -122,9 +122,7 @@ function ManagerSicknessPage() {
                   <td>{formatDate(record.startDate)}</td>
                   <td>{formatDate(record.endDate)}</td>
                   <td>{getSicknessStatusLabel(record.status)}</td>
-                  <td>
-                    <CertificateCell record={record} />
-                  </td>
+                  <td>—</td>
                 </tr>
               ))}
             </tbody>

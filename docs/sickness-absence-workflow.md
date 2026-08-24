@@ -5,8 +5,8 @@ This document describes Phase 8. Sickness absences are stored in `sickness_absen
 ## Lifecycle
 
 1. An authenticated user reports an absence for **themselves** (`REPORTED`). An end date may be omitted.
-2. While `REPORTED` or `DOCUMENT_PENDING`, the employee may edit end date, certificate file (PDF or image), and their note.
-3. Administrators may set `DOCUMENT_PENDING` (request a certificate). Employees can then upload a PDF or image.
+2. While `REPORTED` or `DOCUMENT_PENDING`, the employee may edit end date, optional PDF certificate, and their note.
+3. Administrators may set `DOCUMENT_PENDING` (request a certificate). Employees can then upload one PDF.
 4. Administrators **validate** (`VALIDATED`) only if a final end date exists and the period does not overlap another `VALIDATED` absence for that employee. `validation_user_id` and `validated_at` are set.
 5. Administrators may **reject** open records (`REJECTED`) with a required note; validation user and timestamp are stored to satisfy the existing CHECK constraint.
 6. Administrators **close** (`CLOSED`) only `VALIDATED` records that have an end date.
@@ -15,9 +15,9 @@ This document describes Phase 8. Sickness absences are stored in `sickness_absen
 
 | Role | What they can do |
 | --- | --- |
-| Employee / any logged-in person on their own record | Report, list own, edit open own records |
-| Manager (`departments.manager_id`) | Read-only list of department absences, excluding themselves |
-| Administrator | List all, document-pending, validate, reject, close |
+| Employee / any logged-in person on their own record | Report, list own, edit open own records, upload/view own PDF certificate |
+| Manager (`departments.manager_id`) | Read-only list of department absences, excluding themselves. **No** certificate download. |
+| Administrator | List all, document-pending, validate, reject, close, view/download certificates |
 
 Managers have **no** validate/reject/close/edit-other APIs.
 
@@ -32,11 +32,25 @@ Sickness and care leave are not vacation. The schema keeps them in a separate ta
 - Overlap against other **VALIDATED** rows only when an end date is present
 - Validate requires end date
 - Close requires `VALIDATED` and end date
-- `certificate_reference` stores a short local filename when a PDF or image was uploaded (still `VARCHAR(100)`, no schema change). Files live in `server/uploads/sickness/` and are served only to the employee, department manager, or administrator.
+- At most one PDF certificate per sickness absence. The generated filename is stored in `certificate_reference` (`VARCHAR(100)`). No schema change.
+
+## PDF certificate upload
+
+Fictional local PDFs only. Not medical records from a real insurer.
+
+- Field name: `certificate`
+- Allowed: `.pdf` and MIME type `application/pdf`, maximum 5 MB
+- Storage: `server/uploads/sickness-certificates/` (gitignored, not served as static files)
+- Stored name: 32 hex characters + `.pdf`, never the original filename
+- Upload: own record only, status `REPORTED` or `DOCUMENT_PENDING`, JWT required
+- Download `GET /api/sickness-absences/:id/certificate`: owning employee or `ADMINISTRATOR` only. Managers receive 403.
+- JSON responses expose `hasCertificateFile` but not the disk path or stored filename
+- Replacing a file deletes the previous local file only after the new file and database update succeed
+- Audit actions: `UPLOAD_SICKNESS_CERTIFICATE`, `REPLACE_SICKNESS_CERTIFICATE`
 
 ## Audit
 
-Actions: `REPORT_SICKNESS_ABSENCE`, `UPDATE_SICKNESS_ABSENCE`, `REQUEST_SICKNESS_DOCUMENT`, `VALIDATE_SICKNESS_ABSENCE`, `REJECT_SICKNESS_ABSENCE`, `CLOSE_SICKNESS_ABSENCE`.
+Actions: `REPORT_SICKNESS_ABSENCE`, `UPDATE_SICKNESS_ABSENCE`, `UPLOAD_SICKNESS_CERTIFICATE`, `REPLACE_SICKNESS_CERTIFICATE`, `REQUEST_SICKNESS_DOCUMENT`, `VALIDATE_SICKNESS_ABSENCE`, `REJECT_SICKNESS_ABSENCE`, `CLOSE_SICKNESS_ABSENCE`.
 
 ## Limitations and future work
 
