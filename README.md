@@ -29,7 +29,7 @@ Web application for the bachelor thesis: employees can request leave and report 
 | POST | `/api/employees` | JWT + `ADMINISTRATOR`. |
 | PUT | `/api/employees/:id` | JWT + `ADMINISTRATOR`. |
 | PATCH | `/api/employees/:id/status` | JWT + `ADMINISTRATOR`. |
-| GET | `/api/audit-logs` | JWT + `ADMINISTRATOR`. |
+| GET | `/api/audit-logs` | JWT + `ADMINISTRATOR`. Paginated activity log. |
 | POST | `/api/auth/login` | Public. Username and password. |
 | GET | `/api/auth/me` | JWT required. Current user. |
 | GET | `/api/leave-requests/me` | JWT. Own leave requests. |
@@ -50,5 +50,8 @@ Web application for the bachelor thesis: employees can request leave and report 
 | PATCH | `/api/admin/sickness-absences/:id/validate` | JWT + `ADMINISTRATOR`. |
 | PATCH | `/api/admin/sickness-absences/:id/reject` | JWT + `ADMINISTRATOR`. |
 | PATCH | `/api/admin/sickness-absences/:id/close` | JWT + `ADMINISTRATOR`. |
+| GET | `/api/reports/leave` | JWT + `ADMINISTRATOR`. Leave report. |
+| GET | `/api/reports/sickness-absences` | JWT + `ADMINISTRATOR`. Sickness report. |
+| GET | `/api/reports/absence-overview` | JWT + `ADMINISTRATOR`. Combined overview. |
 
 Setup, environment variables, and test commands are documented in `/server/README.md`. Authentication details are in `/docs/authentication-and-roles.md`.

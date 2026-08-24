@@ -59,8 +59,13 @@ function getDashboardCards(role) {
       },
       {
         title: 'Berichte',
-        text: 'Übersichten zu Urlaub und Abwesenheiten. Die Auswertung folgt in einer späteren Phase.',
+        text: 'Urlaub, Krankmeldungen und Abwesenheitsübersicht auswerten und als CSV exportieren.',
         to: '/admin/reports',
+      },
+      {
+        title: 'Aktivitätsprotokoll',
+        text: 'Aktionen im System nachvollziehen. Es werden keine Kennwörter oder Bescheinigungsdateien angezeigt.',
+        to: '/admin/audit-logs',
       },
     ]
   }

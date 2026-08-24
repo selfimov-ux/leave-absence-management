@@ -86,3 +86,49 @@ export function getAbsenceTypeLabel(type) {
   }
   return type
 }
+
+export function formatDateTime(value) {
+  if (!value) {
+    return '—'
+  }
+  return new Date(value).toLocaleString('de-DE')
+}
+
+export function getAuditActionLabel(action) {
+  const labels = {
+    REPORT_SICKNESS_ABSENCE: 'Krankmeldung erfasst',
+    UPDATE_SICKNESS_ABSENCE: 'Krankmeldung aktualisiert',
+    UPLOAD_SICKNESS_CERTIFICATE: 'Bescheinigung hochgeladen',
+    REPLACE_SICKNESS_CERTIFICATE: 'Bescheinigung ersetzt',
+    REQUEST_SICKNESS_DOCUMENT: 'Dokument angefordert',
+    VALIDATE_SICKNESS_ABSENCE: 'Krankmeldung validiert',
+    REJECT_SICKNESS_ABSENCE: 'Krankmeldung abgelehnt',
+    CLOSE_SICKNESS_ABSENCE: 'Krankmeldung abgeschlossen',
+    CREATE_LEAVE_REQUEST: 'Urlaubsantrag erstellt',
+    CANCEL_LEAVE_REQUEST: 'Urlaubsantrag storniert',
+    APPROVE_LEAVE_REQUEST: 'Urlaubsantrag genehmigt',
+    REJECT_LEAVE_REQUEST: 'Urlaubsantrag abgelehnt',
+    CREATE_EMPLOYEE: 'Mitarbeiter angelegt',
+    UPDATE_EMPLOYEE: 'Mitarbeiter aktualisiert',
+    DEACTIVATE_EMPLOYEE: 'Mitarbeiter deaktiviert',
+    ACTIVATE_EMPLOYEE: 'Mitarbeiter aktiviert',
+    CREATE_DEPARTMENT: 'Abteilung angelegt',
+    UPDATE_DEPARTMENT: 'Abteilung aktualisiert',
+    DELETE_DEPARTMENT: 'Abteilung gelöscht',
+    CREATE_LEAVE_TYPE: 'Urlaubsart angelegt',
+    UPDATE_LEAVE_TYPE: 'Urlaubsart aktualisiert',
+    ACTIVATE_LEAVE_TYPE: 'Urlaubsart aktiviert',
+    DEACTIVATE_LEAVE_TYPE: 'Urlaubsart deaktiviert',
+  }
+  return labels[action] || action
+}
+
+export function getRecordTypeLabel(type) {
+  if (type === 'LEAVE') {
+    return 'Urlaub'
+  }
+  if (type === 'SICKNESS_ABSENCE') {
+    return 'Krankmeldung'
+  }
+  return type
+}

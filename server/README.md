@@ -155,11 +155,13 @@ Deactivate an employee:
 curl -X PATCH http://localhost:5000/api/employees/4/status -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" -d "{\"isActive\":false}"
 ```
 
-Recent audit log:
+Paginated activity log (`page` default 1, `pageSize` default 20, max 100):
 
 ```bash
-curl http://localhost:5000/api/audit-logs -H "Authorization: Bearer YOUR_TOKEN"
+curl "http://localhost:5000/api/audit-logs?page=1&pageSize=20" -H "Authorization: Bearer YOUR_TOKEN"
 ```
+
+Optional filters: `userId`, `action`, `entityType`, `fromDate`, `toDate`. Response: `{ "totalCount", "page", "pageSize", "records" }`. Records contain actor name, action, entity, and description only — no passwords, tokens, file paths, or certificate data.
 
 ## Leave requests
 
@@ -257,7 +259,31 @@ curl -X PATCH http://localhost:5000/api/admin/sickness-absences/1/reject -H "Aut
 curl -X PATCH http://localhost:5000/api/admin/sickness-absences/1/close -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
+## Reports (administrator)
 
+All report endpoints require JWT + `ADMINISTRATOR`. They return `{ "filters", "total", "records" }`. Date filters are `fromDate` and `toDate` (overlap on start/end). Invalid filters return German 400 messages.
+
+Leave report:
+
+```bash
+curl "http://localhost:5000/api/reports/leave?status=APPROVED&fromDate=2026-01-01&toDate=2026-12-31" -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+Sickness report (`certificateAvailable` boolean only; no filename or path):
+
+```bash
+curl "http://localhost:5000/api/reports/sickness-absences?status=VALIDATED" -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+Absence overview (approved leave + REPORTED/DOCUMENT_PENDING/VALIDATED/CLOSED sickness):
+
+```bash
+curl "http://localhost:5000/api/reports/absence-overview?recordType=LEAVE" -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+CSV export is generated in the browser (`Blob` / `URL.createObjectURL`), not by the API.
+
+The activity log is not a report tab. Use `GET /api/audit-logs` and `/admin/audit-logs`.
 
 Authorization header format:
 

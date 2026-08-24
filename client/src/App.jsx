@@ -15,6 +15,7 @@ import ManagerLeaveRequestPage from './pages/ManagerLeaveRequestPage'
 import ManagerSicknessPage from './pages/ManagerSicknessPage'
 import ManagerRoute from './components/ManagerRoute'
 import ReportsPage from './pages/ReportsPage'
+import AuditLogPage from './pages/AuditLogPage'
 import SicknessEditPage from './pages/SicknessEditPage'
 import SicknessListPage from './pages/SicknessListPage'
 import SicknessNewPage from './pages/SicknessNewPage'
@@ -152,6 +153,14 @@ function App() {
           element={
             <AdminRoute>
               <ReportsPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/audit-logs"
+          element={
+            <AdminRoute>
+              <AuditLogPage />
             </AdminRoute>
           }
         />

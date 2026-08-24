@@ -13,6 +13,7 @@ const managerLeaveRequestRoutes = require('./routes/managerLeaveRequests')
 const sicknessAbsenceRoutes = require('./routes/sicknessAbsences')
 const managerSicknessAbsenceRoutes = require('./routes/managerSicknessAbsences')
 const adminSicknessAbsenceRoutes = require('./routes/adminSicknessAbsences')
+const reportRoutes = require('./routes/reports')
 const { authenticateToken, authorizeRoles } = require('./middleware/auth')
 const HttpError = require('./utils/httpError')
 const { uniqueConstraintMessage } = require('./utils/request')
@@ -91,6 +92,7 @@ app.use('/api/manager/leave-requests', managerLeaveRequestRoutes)
 app.use('/api/sickness-absences', sicknessAbsenceRoutes)
 app.use('/api/manager/sickness-absences', managerSicknessAbsenceRoutes)
 app.use('/api/admin/sickness-absences', adminSicknessAbsenceRoutes)
+app.use('/api/reports', reportRoutes)
 
 app.get(
   '/api/admin/test',
