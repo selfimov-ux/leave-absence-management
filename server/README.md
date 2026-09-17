@@ -105,12 +105,6 @@ curl -X PUT http://localhost:5000/api/auth/change-password -H "Authorization: Be
 
 The new password must be at least 10 characters and include uppercase, lowercase, a digit, and a special character. Forgot-password e-mail reset is out of scope for this local academic project. See `/docs/password-security.md`.
 
-Administrator test endpoint:
-
-```bash
-curl http://localhost:5000/api/admin/test -H "Authorization: Bearer YOUR_TOKEN"
-```
-
 ## Administrator management
 
 Replace `YOUR_TOKEN` with an administrator JWT. Never commit a real token.

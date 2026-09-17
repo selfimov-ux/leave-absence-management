@@ -143,7 +143,7 @@ function AuditLogPage() {
           <option value="employees">employees</option>
           <option value="departments">departments</option>
           <option value="leave_types">leave_types</option>
-          <option value="USER">USER</option>
+          <option value="users">users</option>
         </select>
         <input
           type="date"

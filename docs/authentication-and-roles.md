@@ -39,7 +39,7 @@ Roles come from the PostgreSQL enum `user_role`:
 
 - `EMPLOYEE` — own leave and sickness placeholders on the dashboard
 - `MANAGER` — department review placeholders
-- `ADMINISTRATOR` — administration placeholders and `GET /api/admin/test`
+- `ADMINISTRATOR` — administration, reports, activity log, and sickness validation
 
 `authorizeRoles(...roles)` runs after `authenticateToken`. A valid token with the wrong role receives HTTP 403.
 

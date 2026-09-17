@@ -68,8 +68,6 @@ CREATE TABLE users (
     id              SERIAL PRIMARY KEY,
     username        VARCHAR(50)  NOT NULL,
     email           VARCHAR(255) NOT NULL,
-    -- Temporary placeholder until authentication is implemented.
-    -- Store a password hash here in a later phase; do not keep plain text.
     password_hash   VARCHAR(255) NOT NULL,
     role            user_role    NOT NULL,
     is_active       BOOLEAN      NOT NULL DEFAULT TRUE,

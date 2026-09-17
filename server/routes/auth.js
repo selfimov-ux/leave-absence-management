@@ -225,7 +225,7 @@ router.put('/change-password', authenticateToken, async (req, res, next) => {
     await writeAuditLog(pool, {
       userId,
       action: 'PASSWORD_CHANGED',
-      entityType: 'USER',
+      entityType: 'users',
       entityId: userId,
       description: 'Passwort des eigenen Benutzerkontos geändert.',
     })

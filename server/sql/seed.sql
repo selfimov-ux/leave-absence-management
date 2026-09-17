@@ -1,15 +1,6 @@
--- =============================================================================
--- Leave and Absence Management — fictional demo data
--- Database: leave_absence_management
---
--- Run this file in pgAdmin AFTER schema.sql has completed successfully.
--- All people, departments, and requests are invented for local development.
--- =============================================================================
 
--- IMPORTANT — TEMPORARY PLAIN-TEXT PASSWORDS
 -- password_hash currently stores the placeholder string TempPassword123!
--- Authentication is not implemented yet. Replace these values with real
--- password hashes in a later phase. Do not use this approach in production.
+
 
 INSERT INTO users (id, username, email, password_hash, role, is_active) VALUES
     (1,  'aschmidt',    'anna.schmidt@example.com',     'TempPassword123!', 'ADMINISTRATOR', TRUE),
@@ -45,7 +36,7 @@ INSERT INTO employees (
 
 UPDATE departments SET manager_id = 2 WHERE id = 1;
 UPDATE departments SET manager_id = 3 WHERE id = 2;
--- Finance has no assigned department manager in this demo data.
+
 
 INSERT INTO leave_types (id, name, description, is_paid, is_active) VALUES
     (1, 'Annual Leave',  'Regular paid vacation entitlement for the calendar year.', TRUE,  TRUE),
