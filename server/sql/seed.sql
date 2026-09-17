@@ -1,4 +1,5 @@
 
+-- All people, departments, and requests are invented for local development.
 -- password_hash currently stores the placeholder string TempPassword123!
 
 
@@ -36,6 +37,7 @@ INSERT INTO employees (
 
 UPDATE departments SET manager_id = 2 WHERE id = 1;
 UPDATE departments SET manager_id = 3 WHERE id = 2;
+-- Finance has no assigned department manager in this demo data.
 
 
 INSERT INTO leave_types (id, name, description, is_paid, is_active) VALUES
