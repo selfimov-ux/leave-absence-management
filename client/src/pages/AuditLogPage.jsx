@@ -8,6 +8,7 @@ import { formatDateTime, getAuditActionLabel } from '../leaveLabels'
 const PAGE_SIZE = 20
 
 const FILTER_ACTIONS = [
+  'PASSWORD_CHANGED',
   'CREATE_LEAVE_REQUEST',
   'APPROVE_LEAVE_REQUEST',
   'REJECT_LEAVE_REQUEST',
@@ -142,6 +143,7 @@ function AuditLogPage() {
           <option value="employees">employees</option>
           <option value="departments">departments</option>
           <option value="leave_types">leave_types</option>
+          <option value="USER">USER</option>
         </select>
         <input
           type="date"

@@ -32,6 +32,7 @@ Web application for the bachelor thesis: employees can request leave and report 
 | GET | `/api/audit-logs` | JWT + `ADMINISTRATOR`. Paginated activity log. |
 | POST | `/api/auth/login` | Public. Username and password. |
 | GET | `/api/auth/me` | JWT required. Current user. |
+| PUT | `/api/auth/change-password` | JWT required. Change own password only. |
 | GET | `/api/leave-requests/me` | JWT. Own leave requests. |
 | POST | `/api/leave-requests` | JWT. Create own PENDING request. |
 | PATCH | `/api/leave-requests/:id/cancel` | JWT. Cancel own PENDING request. |
@@ -54,4 +55,4 @@ Web application for the bachelor thesis: employees can request leave and report 
 | GET | `/api/reports/sickness-absences` | JWT + `ADMINISTRATOR`. Sickness report. |
 | GET | `/api/reports/absence-overview` | JWT + `ADMINISTRATOR`. Combined overview. |
 
-Setup, environment variables, and test commands are documented in `/server/README.md`. Authentication details are in `/docs/authentication-and-roles.md`.
+Setup, environment variables, and test commands are documented in `/server/README.md`. Authentication details are in `/docs/authentication-and-roles.md`. Password storage and self-service password change are in `/docs/password-security.md`.

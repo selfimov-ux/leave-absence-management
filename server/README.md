@@ -97,6 +97,14 @@ Current user (replace `YOUR_TOKEN` with the token from login; never commit a rea
 curl http://localhost:5000/api/auth/me -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
+Change own password (JWT required; the API never accepts a `userId` in the body). Do not log or commit the request body:
+
+```bash
+curl -X PUT http://localhost:5000/api/auth/change-password -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" -d "{\"currentPassword\":\"CURRENT_PASSWORD\",\"newPassword\":\"NEW_PASSWORD\"}"
+```
+
+The new password must be at least 10 characters and include uppercase, lowercase, a digit, and a special character. Forgot-password e-mail reset is out of scope for this local academic project. See `/docs/password-security.md`.
+
 Administrator test endpoint:
 
 ```bash

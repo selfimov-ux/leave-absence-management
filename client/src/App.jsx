@@ -21,6 +21,7 @@ import SicknessEditPage from './pages/SicknessEditPage'
 import SicknessListPage from './pages/SicknessListPage'
 import SicknessNewPage from './pages/SicknessNewPage'
 import AdminSicknessPage from './pages/AdminSicknessPage'
+import ChangePasswordPage from './pages/ChangePasswordPage'
 import './App.css'
 
 function App() {
@@ -35,6 +36,14 @@ function App() {
           element={
             <ProtectedRoute>
               <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/change-password"
+          element={
+            <ProtectedRoute>
+              <ChangePasswordPage />
             </ProtectedRoute>
           }
         />

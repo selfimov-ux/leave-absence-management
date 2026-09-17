@@ -31,6 +31,9 @@ function AppHeader() {
             <strong>{fullName}</strong>
             <span>{roleLabel}</span>
           </div>
+          <Link to="/change-password" className="btn-login">
+            {t('password.change')}
+          </Link>
           <button type="button" className="btn-login" onClick={handleLogout}>
             {t('common.logout')}
           </button>

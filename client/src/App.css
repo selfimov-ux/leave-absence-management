@@ -426,6 +426,22 @@ main {
   background: #fff;
 }
 
+.password-field {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.password-field .btn-secondary {
+  white-space: nowrap;
+}
+
+.password-rules {
+  margin: 0 0 1rem;
+  padding-left: 1.25rem;
+}
+
 .table-wrap {
   overflow-x: auto;
   background: var(--card-bg);

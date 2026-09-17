@@ -1,16 +1,20 @@
 import { useState } from 'react'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { isAuthenticated, saveSession } from '../authStorage'
 import PublicHeader from '../components/PublicHeader'
 import { useLanguage } from '../i18n/LanguageContext'
 
 function LoginPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { t } = useLanguage()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const successMessage = location.state?.passwordChanged
+    ? t('password.successRelogin')
+    : ''
 
   if (isAuthenticated()) {
     return <Navigate to="/dashboard" replace />
@@ -52,6 +56,7 @@ function LoginPage() {
       }
 
       saveSession(data.token, data.user)
+      setPassword('')
       navigate('/dashboard', { replace: true })
     } catch {
       setError(t('login.unavailable'))
@@ -69,6 +74,12 @@ function LoginPage() {
           <p className="eyebrow">{t('login.eyebrow')}</p>
           <h1>{t('login.title')}</h1>
           <p className="lead">{t('login.lead')}</p>
+
+          {successMessage ? (
+            <p className="form-success" role="status">
+              {successMessage}
+            </p>
+          ) : null}
 
           <form className="auth-form" onSubmit={handleSubmit} noValidate>
             <label htmlFor="username">{t('login.username')}</label>

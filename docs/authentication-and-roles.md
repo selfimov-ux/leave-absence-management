@@ -23,6 +23,8 @@ Seed data originally stored the temporary plain-text value `TempPassword123!` in
 
 Phase 5 adds `server/sql/update-demo-password-hashes.sql`. After you run that script in pgAdmin, every demo account stores a bcrypt hash of the same local demo password. Login uses `bcrypt.compare` only. `schema.sql` and `seed.sql` are not modified.
 
+Authenticated users can change **only their own** password with `PUT /api/auth/change-password`. Details, rules, and data-minimization notes are in `/docs/password-security.md`. There is no e-mail password reset.
+
 Do not use this demo password or these hashes outside local development.
 
 ## JWT authentication
